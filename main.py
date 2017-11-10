@@ -16,7 +16,6 @@ import load
 import log
 import os
 import platform
-import inihelper
 from mainwindow import *
 from tcptool import *
 from zmqtool import *
@@ -26,10 +25,9 @@ import motionthread
 import testthread
 import zmqserver
 import visionthread
-from ctypes import *
 from uiprocess import *
+import ctypes
 sys.path.append(systempath.bundle_dir + '/UI')
-
 
 class TestSeq(UIProcess, QMainWindow):
     def __init__(self, parent=None):
@@ -40,9 +38,8 @@ class TestSeq(UIProcess, QMainWindow):
         self.pb_insertrow.clicked.connect(self.insert_row)
         self.actionReload_CSV.triggered.connect(self.load_sequence)
         self.cb_seq.currentIndexChanged.connect(self.edit_sequence)
-
         self.tabWidget.currentChanged.connect(self.change_tab_view)
-        # 菜单项槽函数连接       ﻿
+        # 菜单项槽函数连接
         self.actionReload_Scripts.triggered.connect(self.reload_scripts)
         self.actionLogin.triggered.connect(self.change_user)
         self.actionUser_Manage.triggered.connect(self.user_management)
@@ -129,19 +126,20 @@ class TestSeq(UIProcess, QMainWindow):
 
     # 初始化测试序列
     def initialize_sequence(self):
-        self.testlist.setColumnWidth(0, self.width * 0.5)
+        # self.testlist.setColumnWidth(0, self.width * 0.4)
         self.root1 = self.initialize_tree(self.testlist, self.load1.seq_col1, self.load1.seq_col7)
         self.pbar.setRange(0, len(self.root1) - 1)
 
     # 初始化显示测试信息的树形结构
     def initialize_tree(self, tree, items, levels):
         log.loginfo.process_log('Initialize sequence tree')
-        tree.setColumnCount(4)
-        tree.setHeaderLabels(['TestItems', 'Test Time', 'TestData', 'TestResult'])
-        # tree.header().setStyleSheet("Background-color:rgb(88, 160, 200);border-radius:14px;")
+        tree.setColumnCount(5)
+        tree.setHeaderLabels(['TestItems', 'Test Time', 'TestData', 'TestResult', 'TestDetails'])
         # 设置行高为25
         tree.setStyleSheet("QTreeWidget::item{height:%dpx}"%int(self.height*0.03))
-        tree.header().setStretchLastSection(True)
+        header = tree.header()
+        header.setStretchLastSection(True)
+        header.setSectionResizeMode(0, QHeaderView.Stretch)
         j = 0
         root = []
         for seq in items[1:len(items)]:
@@ -194,7 +192,6 @@ class TestSeq(UIProcess, QMainWindow):
     # 测试结束后刷新UI等
     def test_end(self, ls):
         # 使用传回的返回值
-
         #self.le_time.setText(str(round(ls[0], 2)) + 's')
         if(self.myloopbar.isChecked()==True and self.myeditbar.text()!='1'):
             self.actionStart.setDisabled(True)
@@ -272,15 +269,21 @@ class TestSeq(UIProcess, QMainWindow):
 
     # 测试过程中刷新UI，线程1
     def refresh_ui(self,ls):
+        print(ls)
+        # 每个测试项测试结果个数
+        l_result = int(len(ls[2]) / 2)
+        print(l_result)
         # 有子项时显示子项
-        if(len(ls[2]) != 1):
-            for i in range(len(ls[2])):
+        if(l_result > 1):
+            for i in range(l_result):
                 self.root1[ls[0]].child(i).setText(2, str(ls[2][i]))
                 self.root1[ls[0]].child(i).setText(3, ls[3][i])
         # 将结果列表的括号去掉后再显示
         ls[2] = str(ls[2])[1:len(str(ls[2])) - 1]
+        ls[4] = str(ls[4])[1:len(str(ls[4])) - 1]
+
         # 显示其他信息
-        for i in range(1, 4):
+        for i in range(1, 5):
             if (i != 3):
                 self.root1[ls[0]].setText(i, str(ls[i]))
             else:
@@ -292,26 +295,26 @@ class TestSeq(UIProcess, QMainWindow):
                     self.root1[ls[0]].setText(i, 'Pass')
 
         if ls[3] == "Testing":
-            for i in range(0,4):
+            for i in range(0,5):
                 self.root1[ls[0]].setBackground(i, QBrush(QColor(0,255,100)))
         elif "Fail" in ls[3]:
             self.pbar.setValue(ls[0])
-            for i in range(0,4):
+            for i in range(0,5):
                 self.root1[ls[0]].setBackground(i, QBrush(QColor(255,0,0)))
         elif ls[3] == 'Pause':
             self.pbar.setValue(ls[0])
-            for i in range(0, 4):
+            for i in range(0, 5):
                 self.root1[ls[0]].setBackground(i, QBrush(QColor(255, 255, 0)))
         else:
             self.pbar.setValue(ls[0])
-            for i in range(0,4):
+            for i in range(0,5):
                 self.root1[ls[0]].setBackground(i, QBrush(QColor(255,255,255)))
 
     # 清除除了测试名称外测试树形结构的其他内容以及进度条
     def clear_seq(self, tree, bar):
         bar.setValue(0)
         for root in tree:
-            for i in range(0, 4):
+            for i in range(0, 5):
                 if(i != 0):
                     root.setText(i, '')
                 root.setBackground(i, QBrush(QColor(255, 255, 255)))
@@ -592,12 +595,11 @@ class TestSeq(UIProcess, QMainWindow):
         winxy = self.mapToGlobal(QPoint(0, 0))
         # 图像显示窗口坐标减去主窗口坐标
         imagexy = self.lb_image.mapToGlobal(-winxy)
-        #self.vision.init_win(int(self.winId()),imagexy.y(),imagexy.x(),self.lb_image.width(),self.lb_image.height())
+        self.vision.init_win(int(self.lb_image.winId()),imagexy.y(),imagexy.x(),self.lb_image.width(),self.lb_image.height())
         #self.vision.init_win(0,imagexy.y(),imagexy.x(),self.lb_image.width(),self.lb_image.height())
-        #cams = self.vision.find_cameras(b'GigEVision')
-
-        #for cam in cams:
-            #self.cb_camera.addItem(cam)
+        cams = self.vision.find_cameras()
+        for cam in cams:
+            self.cb_camera.addItem(cam)
 
     def load_image(self):
         qimg = self.vision.load_image()
@@ -695,7 +697,7 @@ if __name__ == '__main__':
     '''
     主函数
     '''
-    print(QStyleFactory.keys())
+    #print(QStyleFactory.keys())
     if(platform.system() == "Windows"):
         QApplication.setStyle(QStyleFactory.create("Fusion"))   #Plastique
         font = QtGui.QFont()

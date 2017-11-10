@@ -49,52 +49,52 @@ class TestFunc():
 
     def function1(self):
         #self.zmq_comm('pretest')
-        time.sleep(2)
-        return[0.5, 0.5]
+        time.sleep(0.1)
+        return[0.5, 0.5, 'child1', 'child2']
 
     def function2(self):
         #self.zmq_comm('readimage')
         time.sleep(0.5)
-        return [10]
+        return [10, 'fun2']
 
     def function3(self):
         #ret = self.zmq_comm('getimagesize')
         time.sleep(0.5)
-        return [0]
+        return [0, 'fun3']
 
     def function4(self):
         #self.zmq_comm('posttest')
         time.sleep(0.5)
-        return [0.5]
+        return [0.5, 'fun4']
 
     def function5(self):
         time.sleep(0.5)
-        return [0.5]
+        return [0.5,'fun5']
 
     def function6(self):
         time.sleep(0.5)
-        return [0.5]
+        return [0.5, 'fun6']
 
     def function7(self):
         time.sleep(0.5)
-        return [0.5]
+        return [0.5, 'fun7']
 
     def function8(self):
         time.sleep(0.5)
-        return [0.9]
+        return [0.9, 'fun8']
 
     def function9(self):
         time.sleep(0.5)
-        return [0.9]
+        return [0.9,'fun9']
 
     def function10(self):
         time.sleep(0.5)
-        return [0.5]
+        return [0.5,'fun10']
 
     def function11(self):
         time.sleep(0.5)
-        return [0.9]
+        return [0.9, 'fun11']
 
     def function12(self):
         time.sleep(0.5)
-        return [0.9]
+        return [0.9, 'fun12']

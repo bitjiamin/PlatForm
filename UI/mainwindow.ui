@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1893</width>
-    <height>1222</height>
+    <width>1865</width>
+    <height>1312</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -113,7 +113,7 @@ background-image: url(:/JPG/Res/IA.png);</string>
        <string notr="true"/>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_1">
        <property name="sizePolicy">
@@ -147,7 +147,7 @@ background-image: url(:/JPG/Res/IA.png);</string>
         <property name="verticalSpacing">
          <number>0</number>
         </property>
-        <item row="1" column="0" rowspan="3">
+        <item row="1" column="0" rowspan="2">
          <widget class="QTreeWidget" name="testlist">
           <property name="font">
            <font>
@@ -167,7 +167,7 @@ background-image: url(:/JPG/Res/IA.png);</string>
           </column>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="3" column="0">
          <widget class="QProgressBar" name="pbar">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -192,7 +192,7 @@ background-image: url(:/JPG/Res/IA.png);</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1" rowspan="4">
+        <item row="1" column="1" rowspan="3">
          <widget class="QTableWidget" name="systeminfo">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -955,7 +955,7 @@ text-align: center;
         <widget class="QLabel" name="lb_user_title">
          <property name="font">
           <font>
-           <pointsize>10</pointsize>
+           <pointsize>12</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>
@@ -978,7 +978,7 @@ text-align: center;
          </property>
          <property name="font">
           <font>
-           <pointsize>10</pointsize>
+           <pointsize>12</pointsize>
           </font>
          </property>
          <property name="text">
@@ -990,7 +990,7 @@ text-align: center;
         <widget class="QLabel" name="lb_main_user">
          <property name="font">
           <font>
-           <pointsize>10</pointsize>
+           <pointsize>12</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>
@@ -1010,7 +1010,7 @@ text-align: center;
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1893</width>
+     <width>1865</width>
      <height>34</height>
     </rect>
    </property>

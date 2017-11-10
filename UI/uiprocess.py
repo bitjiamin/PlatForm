@@ -28,11 +28,6 @@ class UIProcess(Ui_MainWindow, QMainWindow):
         # 切换到主界面
         #self.tabWidget.tabBar().hide()
         self.tabWidget.setCurrentIndex(0)
-        # 初始化统计信息显示区
-        #self.le_time.setText('0')
-        #self.le_pass.setText('0')
-        #self.le_total.setText('0')
-        #self.le_yield.setText('0')
 
         self.pe = QPalette()
         self.pe2 = QPalette()
@@ -42,9 +37,9 @@ class UIProcess(Ui_MainWindow, QMainWindow):
         self.init_main_ui()
         self.init_toolbar_ui()
         self.init_vision_ui()
-        #self.init_motion_ui()
         self.init_seq()
         self.init_systeminfo()
+        self.disable_window()
 
     def init_main_ui(self):
         # 初始化主界面各控件大小
@@ -60,13 +55,14 @@ class UIProcess(Ui_MainWindow, QMainWindow):
         self.testlist.setStyleSheet('background-color: rgb(255, 255, 255);')
 
     def init_systeminfo(self):
+        # 初始化系统信息栏，第一行为测试状态，2-4行为测试信息统计
         self.systeminfo.setRowCount(50)
         self.systeminfo.setColumnCount(2)
         self.systeminfo.setHorizontalHeaderLabels(['Item', 'Value'])
         self.systeminfo.setColumnWidth(0, self.width * 0.06)
         self.systeminfo.horizontalHeader().setStretchLastSection(True)
         self.systeminfo.verticalHeader().hide()
-        data1 = ['State:', 'Total:', 'Pass:', 'Yeild:']
+        data1 = ['State:', 'Total:', 'Pass:', 'Yield:']
         data2 = ['Idle', '0', '0', '0']
 
         for i in range(4):
@@ -76,6 +72,7 @@ class UIProcess(Ui_MainWindow, QMainWindow):
             self.systeminfo.setItem(i, 1, newItem2)
 
     def set_state(self, result):
+        # 设置系统测试状态
         newItem = QTableWidgetItem(result)
         self.systeminfo.setItem(0, 1, newItem)
         if(result=='Testing'):
@@ -163,12 +160,25 @@ class UIProcess(Ui_MainWindow, QMainWindow):
         else:
             self.Chinese_ui()
 
+    def disable_window(self):
+        self.visionui = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Vision')
+        self.autoui = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Automation')
+        self.sequi = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Sequence')
+        if (self.visionui != 'enable'):
+            self.actionVision_Window.setVisible(False)
+            self.tabWidget.removeTab(3)
+        if (self.autoui != 'enable'):
+            self.actionMotion_Window.setVisible(False)
+            self.actionAutomation.setVisible(False)
+            self.tabWidget.removeTab(2)
+        if (self.sequi != 'enable'):
+            self.actionEdit.setVisible(False)
+            self.actionEdit_Window.setVisible(False)
+            self.tabWidget.removeTab(1)
 
     def init_vision_ui(self):
         # 初始化视觉界面
-        self.visionui = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Vision')
-        if (self.visionui != 'enable'):
-            self.actionVision_Window.setVisible(False)
+
         self.pb_loadimg.setMaximumWidth(self.width * 0.1)
         self.pb_snap.setMaximumWidth(self.width * 0.1)
         self.pb_live.setMaximumWidth(self.width * 0.1)
@@ -177,20 +187,6 @@ class UIProcess(Ui_MainWindow, QMainWindow):
         self.sb_extime.setMaximumWidth(self.width * 0.1)
         self.pb_snap.setDisabled(True)
         self.pb_live.setDisabled(True)
-
-    def init_motion_ui(self):
-        # 初始化运动界面
-        self.lb_axis.setMaximumWidth(self.width * 0.08)
-        #self.lb_axis.setMaximumHeight(self.height * 0.03)
-        #self.lb_io.setMaximumWidth(self.width * 0.08)
-        #self.lb_io.setMaximumHeight(self.height * 0.03)
-        #self.cb_axis.setMaximumWidth(self.width * 0.2)
-        #self.pb_jog1.setMaximumWidth(self.width * 0.08)
-        #self.pb_jog2.setMaximumWidth(self.width * 0.08)
-        #self.pb_absolute.setMaximumWidth(self.width * 0.08)
-        #self.pb_relative.setMaximumWidth(self.width * 0.08)
-        #self.pb_axis_stop.setMaximumWidth(self.width * 0.08)
-        #self.pb_reset.setMaximumWidth(self.width * 0.08)
 
     # 初始化编辑测试序列的表格
     def init_seq(self):
@@ -239,7 +235,7 @@ class UIProcess(Ui_MainWindow, QMainWindow):
         self.actionVision_Window.setText('视觉窗口')
         self.actionToolBar.setText('工具栏')
         # 测试序列
-        self.testlist.setHeaderLabels(['测试项', '测试时间', '测试数据', '测试结果'])
+        self.testlist.setHeaderLabels(['测试项', '测试时间', '测试数据', '测试结果', '详细结果'])
         # 序列编辑
         self.lb_edit.setText('序列编辑')
         self.pb_insertrow.setText('插入行')
@@ -280,7 +276,7 @@ class UIProcess(Ui_MainWindow, QMainWindow):
         self.actionVision_Window.setText('Vision Window')
         self.actionToolBar.setText('ToolBar')
         # 测试序列
-        self.testlist.setHeaderLabels(['TestItems', 'Test Time', 'TestData', 'TestResult'])
+        self.testlist.setHeaderLabels(['TestItems', 'TestTime', 'TestData', 'TestResult', 'TestDetails'])
         # 序列编辑
         self.lb_edit.setText('Edit Test Sequence')
         self.pb_insertrow.setText('Insert Row')

@@ -12,6 +12,7 @@ import systempath
 sys.path.append(systempath.bundle_dir + '/Module')
 sys.path.append(systempath.bundle_dir + '/Scripts')
 sys.path.append(systempath.bundle_dir + '/UI')
+sys.path.append(systempath.bundle_dir + '/Refrence')
 from PyQt5.QtWidgets import QDialog, QMessageBox, QDesktopWidget
 from PyQt5.QtGui import QPixmap
 from loginwindow import *

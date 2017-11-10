@@ -14,6 +14,7 @@ import log
 import time
 from imp import reload
 sys.path.append(systempath.bundle_dir + '/Scripts')
+sys.path.append(systempath.bundle_dir + '/Module')
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QDialog, QMessageBox
 try:
@@ -21,7 +22,6 @@ try:
 except Exception as e:
     log.loginfo.process_log(str(e))
 import copy
-
 
 def reload_scripts():
     try:
@@ -49,8 +49,10 @@ class TestThread(QtCore.QThread):
         self.stop = False
         self.loop = False
         self.looptime = 0
-    def test_func(self):
         self.ts = testscript.TestFunc()
+
+    def test_func(self):
+        #self.ts = testscript.TestFunc()
         self.seq_end = False
         total_time = 0
         total_result = 'Pass'
@@ -70,10 +72,12 @@ class TestThread(QtCore.QThread):
                     k = getattr(self.ts, self.load.seq_col2[i])
                     self.ret = k()
                     log.loginfo.process_log('Test item: ' + self.load.seq_col2[i])
+                    # 每个测试项测试结果个数
+                    l_result = int(len(self.ret)/2)
                     # 如果有子项，则需判断子项pass或fail
-                    for m in range(len(self.ret)):
+                    for m in range(l_result):
                         # 有子项时需索引子项的limit
-                        if(len(self.ret) > 1):
+                        if(l_result > 1):
                             index = i+m+1
                         # 无子项时直接索引当前行的limit
                         else:
@@ -96,13 +100,14 @@ class TestThread(QtCore.QThread):
                             total_result = 'Fail'        #总的测试结果，有任何一项失败都会Fail
                 else:
                     log.loginfo.process_log('Skip item: ' + self.load.seq_col2[i])
-                    self.ret = [None]
+                    # skip时测试结果与结果详细描述都是None
+                    self.ret = [None,None]
                     single_result = 'skip'
                     self.result = ['Skip']
                 # 有子项时，将子项测试数据添加到写入csv的data中
-                if(len(self.ret) > 1):
+                if(l_result > 1):
                     total_data.append('nan')
-                for n in range (len(self.ret)):
+                for n in range (l_result):
                     total_data.append(str(self.ret[n]))
                 # 统计测试时间
                 et_int = time.time()
@@ -112,9 +117,9 @@ class TestThread(QtCore.QThread):
                 # 暂停测试
                 while (self.pause):
                     time.sleep(0.02)
-                    self.refresh.emit([j, tt, self.ret, 'Pause', self.threadnum])  #发送暂停测试信号，更新界面
-                # 发送测试结果并更新界面
-                self.refresh.emit([j, tt, self.ret, self.result, self.threadnum])
+                    self.refresh.emit([j, tt, self.ret[0:int(len(self.ret)/2)], 'Pause', self.ret[int(len(self.ret)/2):], self.threadnum])  #发送暂停测试信号，更新界面
+                # 发送测试结果并更新界面,测试脚本返回的结果中前半部分为结果，后半部分为详细描述
+                self.refresh.emit([j, tt, self.ret[0:int(len(self.ret)/2)], self.result,  self.ret[int(len(self.ret)/2):], self.threadnum])
                 log.loginfo.process_log(self.load.seq_col2[i] + ' result:' + str(self.ret))
                 # 按了停止后结束测试
                 if(self.stop):

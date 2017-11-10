@@ -30,8 +30,8 @@ class VisionThread(QtCore.QThread):
         qimg = visions.load_image()
         return qimg
 
-    def find_cameras(self, type):
-        return visions.find_cameras(type)
+    def find_cameras(self):
+        return visions.find_cameras()
 
     def open_camera(self, num):
         return visions.open_camera(num)
