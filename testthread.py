@@ -12,20 +12,29 @@ import sys
 import systempath
 import log
 import time
+import threading
+import load
+import mainsetup
 from imp import reload
 sys.path.append(systempath.bundle_dir + '/Scripts')
-sys.path.append(systempath.bundle_dir + '/Module')
+sys.path.append(systempath.bundle_dir + '/UI')
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QDialog, QMessageBox
+import imp
+global testscript
+testscript = []
 try:
-    import testscript
+    for i in range(load.threadnum):
+        name = imp.load_source('testscript' + str(i+1), systempath.bundle_dir + '/Scripts/testscript' + str(i+1) + '.py')
+        testscript.append(name)
 except Exception as e:
     log.loginfo.process_log(str(e))
 import copy
 
 def reload_scripts():
     try:
-        reload(testscript)
+        for i in range(load.threadnum):
+            reload(testscript[i])
         log.loginfo.process_log('reload test script ok')
     except Exception as e:
         log.loginfo.process_log(str(e))
@@ -37,22 +46,21 @@ class TestThread(QtCore.QThread):
     refresh = QtCore.pyqtSignal(list)
     refreshloop = QtCore.pyqtSignal(int)
     # 构造函数里增加形参
-    def __init__(self, load,  threadnum, parent=None):
+    def __init__(self, load,  threadid, parent=None):
         super(TestThread, self).__init__(parent)
         # 储存参数
         self.load = load
         self.seq_end = True
-        self.threadnum = threadnum
+        self.threadid = threadid
         self.ret = []
         self.result = []
         self.pause = False
         self.stop = False
         self.loop = False
-        self.looptime = 0
-        self.ts = testscript.TestFunc()
+        # self.looptime = 0
+        self.ts = testscript[self.threadid].TestFunc()
 
     def test_func(self):
-        #self.ts = testscript.TestFunc()
         self.seq_end = False
         total_time = 0
         total_result = 'Pass'
@@ -65,13 +73,13 @@ class TestThread(QtCore.QThread):
         for seq in range(len(self.load.seq_col1)-1):
             self.result = []
             if(self.load.seq_col7[i] == 'root'):
-                self.refresh.emit([j, '', '', "Testing", 1])
+                self.refresh.emit([j, '', '', "Testing", 1, self.threadid])
                 st_int = time.time()
                 st = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(st_int))
                 if self.load.seq_col3[i]!='skip':
                     k = getattr(self.ts, self.load.seq_col2[i])
                     self.ret = k()
-                    log.loginfo.process_log('Test item: ' + self.load.seq_col2[i])
+                    log.loginfo.process_log('Thread' + str(self.threadid+1) + ':'+'Test item: ' + self.load.seq_col2[i])
                     # 每个测试项测试结果个数
                     l_result = int(len(self.ret)/2)
                     # 如果有子项，则需判断子项pass或fail
@@ -99,7 +107,7 @@ class TestThread(QtCore.QThread):
                             single_result = 'Fail'
                             total_result = 'Fail'        #总的测试结果，有任何一项失败都会Fail
                 else:
-                    log.loginfo.process_log('Skip item: ' + self.load.seq_col2[i])
+                    log.loginfo.process_log('Thread' + str(self.threadid+1) + ':'+'Skip item: ' + self.load.seq_col2[i])
                     # skip时测试结果与结果详细描述都是None
                     self.ret = [None,None]
                     single_result = 'skip'
@@ -117,10 +125,10 @@ class TestThread(QtCore.QThread):
                 # 暂停测试
                 while (self.pause):
                     time.sleep(0.02)
-                    self.refresh.emit([j, tt, self.ret[0:int(len(self.ret)/2)], 'Pause', self.ret[int(len(self.ret)/2):], self.threadnum])  #发送暂停测试信号，更新界面
+                    self.refresh.emit([j, tt, self.ret[0:int(len(self.ret)/2)], 'Pause', self.ret[int(len(self.ret)/2):], self.threadid])  #发送暂停测试信号，更新界面
                 # 发送测试结果并更新界面,测试脚本返回的结果中前半部分为结果，后半部分为详细描述
-                self.refresh.emit([j, tt, self.ret[0:int(len(self.ret)/2)], self.result,  self.ret[int(len(self.ret)/2):], self.threadnum])
-                log.loginfo.process_log(self.load.seq_col2[i] + ' result:' + str(self.ret))
+                self.refresh.emit([j, tt, self.ret[0:int(len(self.ret)/2)], self.result,  self.ret[int(len(self.ret)/2):], self.threadid])
+                log.loginfo.process_log('Thread' + str(self.threadid+1) + ':'+self.load.seq_col2[i] + ' result:' + str(self.ret))
                 # 按了停止后结束测试
                 if(self.stop):
                     total_result = 'Break'
@@ -134,21 +142,34 @@ class TestThread(QtCore.QThread):
         time2 = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         data_head = ['12345678', total_result, 'no error', time1, time2, str(total_time)]
         data_head.extend(total_data)
-        self.load.write_csv(data_head, self.threadnum)
-        log.loginfo.process_log('total time： ' + str("%.2f" %total_time))
+        self.load.write_csv(data_head, self.threadid)
+        log.loginfo.process_log('Thread' + str(self.threadid+1) + ':'+'total time： ' + str("%.2f" %total_time))
         self.seq_end = True
-        self.finishSignal.emit([total_time, total_result, self.threadnum])
+        self.finishSignal.emit([total_time, total_result, self.threadid])
 
     # 重写 run() 函数，在该线程中执行测试函数
     def run(self):
-        if(self.loop and (self.looptime>0)):
+        print('run')
+        if(self.loop):
             while(True):
                 self.test_func()
-                self.looptime = self.looptime - 1
-                self.refreshloop.emit(self.looptime)
-                if((self.loop == False) or (self.looptime <= 0) or self.stop):
+                # self.looptime = self.looptime - 1
+                self.refreshloop.emit(0)
+                if((self.loop == False) or self.stop):
                     break
-                time.sleep(0.2)
+                time.sleep(0.5)
         else:
             self.test_func()
+
+global t_thread, t_load
+t_thread = []
+t_load = []
+
+for i in range(load.threadnum):
+    s_load = load.Load('Seq'+str(i+1)+'.csv')
+    s_load.load_seq()
+    t_load.append(s_load)
+    # log.loginfo.process_log('Load sequence')
+    s_thread = TestThread(s_load, i)
+    t_thread.append(s_thread)
 

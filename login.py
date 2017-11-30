@@ -18,8 +18,8 @@ from PyQt5.QtGui import QPixmap
 from loginwindow import *
 import time
 import base64
-import log
 import inihelper
+import log
 
 class UserManager(Ui_login,QDialog):
     loginsignal = QtCore.pyqtSignal(list)

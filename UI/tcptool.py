@@ -8,7 +8,7 @@ Update date：2017.7.20
 version 1.0.0
 """
 
-from PyQt5.QtWidgets import QDialog, QMessageBox
+from PyQt5.QtWidgets import QDialog, QDesktopWidget
 from tcpwindow import *
 import socket
 import threading
@@ -20,10 +20,17 @@ class TcpTool(Ui_tcptool, QDialog):
     def __init__(self, parent=None):
         super(TcpTool, self).__init__(parent)
         self.setupUi(self)
+        self.screen = QDesktopWidget().screenGeometry()
+        self.width = self.screen.width()
+        self.height = self.screen.height()
+        self.setWindowTitle('TCP Debug')
+        self.resize(self.width * 0.5, self.height * 0.5)
+        self.lb_tcptitle.setMaximumHeight(self.height * 0.05)
+
         self.pb_tcpconnect.clicked.connect(self.tcp_connect)
         self.setWindowTitle('Tcp Debug')
         self.pb_send.clicked.connect(self.tcp_send)
-        self.le_ip.setText('192.168.52.52:5000')
+        self.le_ip.setText('192.168.1.100:5000')
         self.ip = ''
         self.port = 0
         self.pb_send.setEnabled(False)

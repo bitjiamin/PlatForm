@@ -9,10 +9,6 @@ version 1.0.0
 """
 
 import configparser
-import sys
-import os
-import load
-import systempath
 
 
 def read_ini(filename, section, key):

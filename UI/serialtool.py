@@ -13,14 +13,20 @@ import serial
 import serial.tools.list_ports
 from serialwindow import *
 import threading
-import time
+from PyQt5.QtWidgets import QDesktopWidget
 import log
 
 class SerialTool(Ui_serialtool, QDialog):
     def __init__(self, parent = None):
         super(SerialTool, self).__init__(parent)
         self.setupUi(self)
+        self.screen = QDesktopWidget().screenGeometry()
+        self.width = self.screen.width()
+        self.height = self.screen.height()
         self.setWindowTitle('Serial Debug')
+        self.resize(self.width * 0.5, self.height * 0.5)
+        self.lb_serialtitle.setMaximumHeight(self.height * 0.05)
+
         self.pb_serialcon.clicked.connect(self.serial_connect)
         self.pb_serialsend.clicked.connect(self.serial_send)
         self.com = serial.Serial()

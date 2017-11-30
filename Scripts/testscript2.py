@@ -15,6 +15,7 @@ import os
 import subprocess
 
 #subprocess.Popen('C:\Project\Pnco.exe')
+s='1232314'
 class TestFunc():
     def __init__(self):
         self.zmq_open()
@@ -54,13 +55,13 @@ class TestFunc():
 
     def function2(self):
         #self.zmq_comm('readimage')
-        time.sleep(0.5)
+        time.sleep(5)
         return [10, 'fun2']
 
     def function3(self):
         #ret = self.zmq_comm('getimagesize')
-        time.sleep(0.5)
-        return [0, 'fun3']
+        time.sleep(2)
+        return [0.1, 'fun3']
 
     def function4(self):
         #self.zmq_comm('posttest')

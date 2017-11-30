@@ -14,7 +14,7 @@ import os
 import inihelper
 import systempath
 
-stationnum = '1'
+threadnum = int(inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Thread'))
 class Load():
     def __init__(self, path, parent=None):
         global loginfo
@@ -75,7 +75,7 @@ class Load():
 
     def write_csv(self, data, seqnum):
         st = time.strftime('%Y-%m-%d', time.localtime(time.time()))
-        filepath = systempath.bundle_dir + '/Result/' + st + '_sequence' + str(seqnum) + '.csv'
+        filepath = systempath.bundle_dir + '/Result/' + st + '_sequence' + str(seqnum+1) + '.csv'
         if (not os.path.exists(filepath)):
             f = open(filepath, 'a+')
             writer = csv.writer(f)
