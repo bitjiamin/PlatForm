@@ -28,15 +28,13 @@ class AutoUI(Ui_automation, QDialog, QtCore.QThread):
         self.height = self.screen.height()
         self.lb_axis.setMaximumHeight(self.height*0.1)
         self.lb_title.setMaximumHeight(self.height*0.1)
-
         self.lan = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Language')
         self.change_language(self.lan)
-
 
     def English_ui(self):
         # 序列编辑
         self.tw_io.setHorizontalHeaderLabels(['IO', 'Description'])
-        self.lb_title.setText('AutoMation')
+        self.lb_title.setText('Automation')
         self.lb_axis.setText('Axis Name')
         self.lb_real_pos.setText('Current Position')
         self.lb_man_speed.setText('Manual Speed')

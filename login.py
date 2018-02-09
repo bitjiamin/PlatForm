@@ -9,10 +9,6 @@ version 1.0.0
 """
 import sys
 import systempath
-sys.path.append(systempath.bundle_dir + '/Module')
-sys.path.append(systempath.bundle_dir + '/Scripts')
-sys.path.append(systempath.bundle_dir + '/UI')
-sys.path.append(systempath.bundle_dir + '/Refrence')
 from PyQt5.QtWidgets import QDialog, QMessageBox, QDesktopWidget
 from PyQt5.QtGui import QPixmap
 from loginwindow import *
@@ -45,7 +41,6 @@ class UserManager(Ui_login,QDialog):
         self.le_pwd.setFocus()
         pixMap = QPixmap(systempath.bundle_dir + '/Resource/user.png')
         self.lb_image.setPixmap(pixMap)
-        log.loginfo = log.Log()
         log.loginfo.init_log()
         self.le_pwd.setText('')
 

@@ -36,9 +36,8 @@ class Load():
         self.seq_col6 = []
         self.seq_col7 = []
         self.testitems = []
-        #除第一次加载外，其他时候的加载都会弹出文件选择对话框
+        # 除第一次加载外，其他时候的加载都会弹出文件选择对话框
         global stationnum
-        # stationnum = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Station')
         Load.firstload = False
         csvfile = open(self.path, 'r')
         reader = csv.reader(csvfile)
@@ -52,7 +51,7 @@ class Load():
             self.seq_col7.append(seq[6])
 
     def load_seq_from_file(self):
-        #除第一次加载外，其他时候的加载都会弹出文件选择对话框
+        # 除第一次加载外，其他时候的加载都会弹出文件选择对话框
         dir_path = QFileDialog.getOpenFileName(None, "choose directory", "", "Csv files(*.csv)")
         if(dir_path[0] != ''):
             csvfile = open(dir_path[0], 'r')
@@ -77,7 +76,7 @@ class Load():
         st = time.strftime('%Y-%m-%d', time.localtime(time.time()))
         filepath = systempath.bundle_dir + '/Result/' + st + '_sequence' + str(seqnum+1) + '.csv'
         if (not os.path.exists(filepath)):
-            f = open(filepath, 'a+')
+            f = open(filepath, 'a+', newline='')
             writer = csv.writer(f)
             datalog1 = ['SN', 'Pass/Fail', 'errStr', 'StartTime', 'EndTime', 'TestTime']
             datalog1.extend(self.seq_col1[1:len(self.seq_col1)])
@@ -95,6 +94,6 @@ class Load():
             writer.writerow(datalog4)
             writer.writerow(datalog5)
             f.close()
-        f = open(filepath, 'a+')
+        f = open(filepath, 'a+',newline='')
         writer = csv.writer(f)
         writer.writerow(data)

@@ -7,14 +7,19 @@ description: 主程序
 Update date：2017.7.20
 version 1.0.0
 """
-
-from login import *
-import systempath
 import sys
-import load
+import systempath
+sys.path.append(systempath.bundle_dir + '/Module')
+sys.path.append(systempath.bundle_dir + '/Scripts')
+sys.path.append(systempath.bundle_dir + '/UI')
+sys.path.append(systempath.bundle_dir + '/Refrence')
 import log
+from login import *
+log.loginfo = log.Log()
+import load
 import os
 import platform
+import multiprocessing
 from mainwindow import *
 from tcptool import *
 from zmqtool import *
@@ -22,17 +27,20 @@ from serialtool import *
 from usermanage import *
 import testthread
 import zmqserver
-from mainsetup import *
+from mainslots import *
 from editslots import *
 import autoslots
+from PyQt5.QtGui import QPixmap, QPalette, QColor, QBrush
 sys.path.append(systempath.bundle_dir + '/UI')
+from scansnsetup import *
 
-class TestSeq(MainUI, QMainWindow):
+
+class TestSeq(MainSlots, QMainWindow):
     def __init__(self, parent=None):
         super(TestSeq, self).__init__(parent)
         # 实例化tcp，串口，zmq调试工具类
         self.tcptool = TcpTool()
-        self.seqtool = EditThread()
+        self.seqtool = EditSlots()
         self.serialtool = SerialTool()
         self.zmqtool = ZmqTool()
         self.usertool = UserManage()
@@ -44,7 +52,7 @@ class TestSeq(MainUI, QMainWindow):
         self.actionLogin.triggered.connect(self.change_user)
         self.actionUser_Manage.triggered.connect(self.user_management)
         self.actionMain_Window.triggered.connect(self.switch_to_mainwindow)
-        self.actionEdit.triggered.connect(self.seq_debug_tool)
+        self.actionEdit_Window.triggered.connect(self.seq_debug_tool)
         self.actionMotion_Window.triggered.connect(self.motion_debug)
         self.actionZmq_Debug.triggered.connect(self.zmq_debug_tool)
         self.actionTcp_Debug.triggered.connect(self.tcp_debug_tool)
@@ -54,6 +62,7 @@ class TestSeq(MainUI, QMainWindow):
         self.actionOpen_Result.triggered.connect(self.open_result)
         self.actionOpen_Log.triggered.connect(self.open_log)
         self.actionClose_System.triggered.connect(self.close)
+        self.actionSN_Window.triggered.connect(self.sn_window)
         # 工具栏信号连接
         self.actionStart.triggered.connect(self.test_start)
         self.actionStop.triggered.connect(self.test_break)
@@ -61,6 +70,7 @@ class TestSeq(MainUI, QMainWindow):
         self.actionContinue.triggered.connect(self.continue_tool)
         self.actionLoginTool.triggered.connect(self.change_user)
         self.actionAutomation.triggered.connect(self.motion_debug)
+        self.actionEdit.triggered.connect(self.seq_debug_tool)
         self.actionMainwindow.triggered.connect(self.switch_to_mainwindow)
         self.actionRefresh.triggered.connect(self.reload_scripts)
         self.myloopbar.clicked.connect(self.enable_loop)
@@ -71,6 +81,7 @@ class TestSeq(MainUI, QMainWindow):
         self.switch_to_mainwindow()
         # 两个树形控件的root items
         self.root = []
+        self.mode = []
         for i in range(load.threadnum):
             self.root.append([])
         #self.load1 = testthread.t_load[0]
@@ -81,6 +92,8 @@ class TestSeq(MainUI, QMainWindow):
             testthread.t_thread[i].finishSignal.connect(self.test_end)
             testthread.t_thread[i].refresh.connect(self.refresh_ui)
             testthread.t_thread[i].refreshloop.connect(self.loop_refresh)
+            self.mode.append(testthread.t_load[i].seq_col3)
+            self.debug = False
 
         # 实例化log类
         log.loginfo.refreshlog.connect(self.refresh_log)
@@ -100,7 +113,10 @@ class TestSeq(MainUI, QMainWindow):
         self.zmq.zmqrecvsingnal.connect(self.zmqtool.display_recv_msg)
         self.zmq.zmqsendsingnal.connect(self.zmqtool.display_send_msg)
 
-    # 初始化测试序列
+    def sn_window(self):
+        self.snwd.show()
+
+        # 初始化测试序列
     def initialize_sequence(self):
         # self.testlist.setColumnWidth(0, self.width * 0.4)
         for i in range(load.threadnum):
@@ -111,7 +127,7 @@ class TestSeq(MainUI, QMainWindow):
     # 初始化显示测试信息的树形结构
     def initialize_tree(self, tree, items, levels):
         tree.setColumnCount(5)
-        tree.setHeaderLabels(['TestItems', 'Test Time', 'TestData', 'TestResult', 'TestDetails'])
+        tree.setHeaderLabels(['TestItems', 'Test Time', 'TestData', 'TestResult', ' Coordinate'])
         # 设置行高为25
         tree.setStyleSheet("QTreeWidget::item{height:%dpx}"%int(self.height*0.03))
         header = tree.header()
@@ -145,6 +161,25 @@ class TestSeq(MainUI, QMainWindow):
     def test_start(self):
         log.loginfo.process_log('Start test')
         for i in range(load.threadnum):
+            if (self.debug):
+                try:
+                    title = []
+                    items = self.testtree[i].selectedItems()
+                    for item in items:
+                        title.append(item.text(0))
+                    j = 0
+                    for data in testthread.t_load[i].seq_col1:
+                        if(data in title or j == 1 or j == len(testthread.t_load[i].seq_col1)-1):
+                            testthread.t_load[i].seq_col3[j] = 'test'
+                        else:
+                            testthread.t_load[i].seq_col3[j] = 'skip'
+                        j = j + 1
+                except Exception as e:
+                    print(e)
+            else:
+                for i in range(load.threadnum):
+                    testthread.t_load[i].seq_col3 = self.mode[i]
+
             testthread.t_thread[i].stop = False
             self.actionStart.setDisabled(True)
             # self.myloopbar.setDisabled(True)
@@ -169,7 +204,7 @@ class TestSeq(MainUI, QMainWindow):
             # self.myloopbar.setDisabled(False)
             # self.myeditbar.setDisabled(False)
         self.set_state(ls[1], ls[2])
-        self.set_count(ls[1], ls[2])
+        self.set_count(ls)
         if ls[1] == 'Pass':
             #self.le_pass.setText(str(int(self.le_pass.text()) + 1))
             self.pe.setColor(QPalette.Window, QColor(0, 255, 0))  # 设置背景颜色
@@ -240,24 +275,35 @@ class TestSeq(MainUI, QMainWindow):
     def refresh_ui(self,ls):
         thread_id = ls[5]
         # 每个测试项测试结果个数
-        l_result = int(len(ls[2]) / 2)
+        l_result = len(ls[2]) - 1
         # 有子项时显示子项
         if(l_result > 1):
             for i in range(l_result):
-                self.root[thread_id][ls[0]].child(i).setText(2, str(ls[2][i]))
-                self.root[thread_id][ls[0]].child(i).setText(3, ls[3][i])
+                self.root[thread_id][ls[0]].child(i).setText(2, str(ls[2][i+1]))
+                self.root[thread_id][ls[0]].child(i).setText(3, ls[3][i+1])
         # 将结果列表的括号去掉后再显示
-        ls[2] = str(ls[2])[1:len(str(ls[2])) - 1]
         ls[4] = str(ls[4])[1:len(str(ls[4])) - 1]
         # 显示其他信息
         for i in range(1, 5):
-            if (i != 3):
+            if (i == 0 or i == 1 or i == 4 or i == 5):
+                # 将结果列表的括号去掉后再显示
                 self.root[thread_id][ls[0]].setText(i, str(ls[i]))
-            else:
+            if (i == 2):
+                if(l_result>1):
+                    self.root[thread_id][ls[0]].setText(i, str(ls[i][0]))
+                else:
+                    try:
+                        self.root[thread_id][ls[0]].setText(i, str(ls[i][0]))
+                    except Exception as e:
+                        pass
+
+            if(i == 3):
                 if('Fail' in ls[i]):
                     self.root[thread_id][ls[0]].setText(i, 'Fail')
                 elif(ls[i][0]== 'Skip'):
                     self.root[thread_id][ls[0]].setText(i, 'Skip')
+                elif('Testing' in ls[i]):
+                    self.root[thread_id][ls[0]].setText(i, 'Testing')
                 else:
                     self.root[thread_id][ls[0]].setText(i, 'Pass')
 
@@ -266,8 +312,16 @@ class TestSeq(MainUI, QMainWindow):
                 self.root[thread_id][ls[0]].setBackground(i, QBrush(QColor(0,255,100)))
         elif "Fail" in ls[3]:
             self.bar[thread_id].setValue(ls[0])
-            for i in range(0,5):
-                self.root[thread_id][ls[0]].setBackground(i, QBrush(QColor(255,0,0)))
+            for i in range(0, 5):
+                self.root[thread_id][ls[0]].setBackground(i, QBrush(QColor(255, 0, 0)))
+
+            if(len(ls[3]) > 1):      # 将fail的子项标红
+                for j in range(len(ls[3])-1):
+                    if(ls[3][j+1] == 'Fail'):
+                        for i in range(0, 5):
+                            self.root[thread_id][ls[0]].child(j).setBackground(i, QBrush(QColor(255, 0, 0)))
+                            pass
+
         elif ls[3] == 'Pause':
             self.bar[thread_id].setValue(ls[0])
             for i in range(0, 5):
@@ -279,15 +333,18 @@ class TestSeq(MainUI, QMainWindow):
 
     # 清除除了测试名称外测试树形结构的其他内容以及进度条
     def clear_seq(self, tree, bar):
-        bar.setValue(0)
-        for root in tree:
-            for i in range(0, 5):
-                if(i != 0):
-                    root.setText(i, '')
-                root.setBackground(i, QBrush(QColor(255, 255, 255)))
-                for j in range(root.childCount()):
-                    root.child(j).setText(2, '')
-                    root.child(j).setText(3, '')
+        try:
+            bar.setValue(0)
+            for root in tree:
+                for i in range(0, 5):
+                    if(i != 0):
+                        root.setText(i, '')
+                    root.setBackground(i, QBrush(QColor(255, 255, 255)))
+                    for j in range(root.childCount()):
+                        root.child(j).setText(2, '')
+                        root.child(j).setText(3, '')
+        except Exception as e:
+            print(e)
 
     # 切换到主界面
     def switch_to_mainwindow(self):
@@ -372,6 +429,10 @@ class TestSeq(MainUI, QMainWindow):
     # 解析zmq server收到的内容
     def recv_server(self, ls):
         if(ls[0] == 'Start'):
+            self.debug = False
+            self.test_start()
+        if (ls[0] == 'Debug'):
+            self.debug = True
             self.test_start()
 
     def open_sequence(self):
@@ -414,7 +475,6 @@ class TestSeq(MainUI, QMainWindow):
             self.nextAction.setDisabled(False)
             self.myloopbar.setDisabled(False)
             # self.myeditbar.setDisabled(False)
-
         else:
             self.actionPause.setVisible(False)
             self.actionContinue.setVisible(False)
@@ -436,6 +496,7 @@ if __name__ == '__main__':
     '''
     主函数
     '''
+    multiprocessing.freeze_support()
     #print(QStyleFactory.keys())
     if(platform.system() == "Windows"):
         QApplication.setStyle(QStyleFactory.create("Fusion"))   #Plastique
@@ -458,4 +519,5 @@ if __name__ == '__main__':
         if(user.loginok):
             seq = TestSeq()
             seq.showMaximized()
+            seq.snwd.show()
             sys.exit(app.exec_())

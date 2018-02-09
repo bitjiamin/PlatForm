@@ -14,19 +14,6 @@ import time
 import ctypes
 from ctypes import *
 
-# Create a black image
-#baumer = ctypes.cdll.LoadLibrary(systempath.bundle_dir + '\Scripts\BaumerDll.dll')
-#baumer.open_interface()
-#a = baumer.get_device_cnt()
-#baumer.open_device(0)
-#baumer.open_buffer()
-#baumer.set_exposuretime(160000)
-#filename = c_char_p(b'C:\\Project\\Image\\a.tif')
-# image_data为char*类型
-#image_data = baumer.one_shot
-#image_data.restype = c_char_p
-#image_data=baumer.one_shot(5000)
-#baumer.save_image(filename, image_data, 2592, 1944)
 
 
 class Vision():

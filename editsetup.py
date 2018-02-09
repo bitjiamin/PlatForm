@@ -27,7 +27,7 @@ class EditUI(Ui_editsequence, QDialog):
         for i in range(load.threadnum):
             self.cb_seq.addItem('Sequence' + str(i+1))
         log.loginfo.process_log('Initialize sequence table')
-        self.tableseq.setRowCount(50)
+        self.tableseq.setRowCount(200)
         self.tableseq.setColumnCount(7)
         self.tableseq.setHorizontalHeaderLabels(
             ['TestItem', 'Function', 'Mode', 'Low Limit', 'Up Limit', 'Next Step', 'Level'])

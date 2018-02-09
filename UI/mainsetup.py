@@ -1,41 +1,41 @@
+# -*- coding: utf-8 -*-
 from mainwindow import *
-from automation import *
-from serialwindow import *
-from PyQt5.QtGui import QPixmap, QPalette, QColor, QBrush
-from PyQt5.QtCore import QPoint, QSize
 from PyQt5.QtWidgets import *
+from PyQt5.QtGui import QPixmap, QPalette, QColor
+from PyQt5.QtCore import QSize
 import systempath
 import log
 import inihelper
 import load
 
 class MainUI(Ui_MainWindow, QMainWindow):
+    __first_init = True
     def __init__(self, parent=None):
-        super(MainUI, self).__init__(parent)
-        self.setupUi(self)
-        log.loginfo.process_log('Initialize UI')
-        # 获取屏幕分辨率
-        self.screen = QDesktopWidget().screenGeometry()
-        self.width = self.screen.width()
-        self.height = self.screen.height()
-        # 添加IA Logo
-        pixMap = QPixmap(systempath.bundle_dir + '/Resource/IA.png')
-        self.lb_ia.setMaximumWidth(self.width * 0.12)
-        self.lb_ia.setFixedHeight(self.height * 0.11)
-        self.lb_ia.setScaledContents(True)
-        self.lb_ia.setPixmap(pixMap)
-        # 读取标题与版本号
-        self.lb_title.setText(inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Title'))
-        self.lb_ver.setText(inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Version'))
+        if (self.__class__.__first_init):  # 只初始化一次
+            self.__class__.__first_init = False  # 只初始化一次
+            super(MainUI, self).__init__(parent)
+            self.setupUi(self)
+            log.loginfo.process_log('Initialize UI')
+            # 获取屏幕分辨率
+            self.screen = QDesktopWidget().screenGeometry()
+            self.width = self.screen.width()
+            self.height = self.screen.height()
+            # 添加IA Logo
+            pixMap = QPixmap(systempath.bundle_dir + '/Resource/IA.png')
+            self.lb_ia.setMaximumWidth(self.width * 0.12)
+            self.lb_ia.setFixedHeight(self.height * 0.11)
+            self.lb_ia.setScaledContents(True)
+            self.lb_ia.setPixmap(pixMap)
 
-        self.pe = QPalette()
-        self.pe2 = QPalette()
-
-        self.pe.setColor(QPalette.Window, QColor(0, 255, 0))  # 设置背景颜色
-
-        self.testtree = []
-        self.info = []
-        self.bar = []
+            # 读取标题与版本号
+            self.lb_title.setText(inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Title'))
+            self.lb_ver.setText(inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Version'))
+            self.pe = QPalette()
+            self.pe2 = QPalette()
+            self.pe.setColor(QPalette.Window, QColor(0, 255, 0))  # 设置背景颜色
+            self.testtree = []
+            self.info = []
+            self.bar = []
 
         for i in range(load.threadnum):
             listname = getattr(self, 'testlist' + str(i+1))
@@ -61,20 +61,16 @@ class MainUI(Ui_MainWindow, QMainWindow):
         # 实例化信号槽需要用到的类
 
     def init_main_ui(self):
-
         # 初始化主界面各控件大小
-        for i in range(2):
+        for i in range(load.threadnum):
             self.info[i].setMaximumWidth(self.width * 0.2)
-        self.setMinimumHeight(self.height * 0.5)
-        self.setMinimumWidth(self.width * 0.5)
         self.lb_title.setFixedHeight(self.height * 0.11)
-        self.lb_main_user.setMaximumWidth(self.width * 0.1)
-
         self.pe2.setColor(QPalette.WindowText, QColor(8, 80, 208))  # 设置字体颜色
         self.lb_main_user.setPalette(self.pe2)
         self.lb_user_title.setPalette(self.pe2)
         for i in range(load.threadnum):
-            self.testtree[i].setStyleSheet('background-color: rgb(255, 255, 255);')
+            #self.testtree[i].setStyleSheet('background-color: rgb(255, 255, 255);')
+            pass
         self.tabWidget.tabBar().hide()
 
     def init_systeminfo(self):
@@ -83,42 +79,20 @@ class MainUI(Ui_MainWindow, QMainWindow):
             self.info[j].setRowCount(50)
             self.info[j].setColumnCount(2)
             self.info[j].setHorizontalHeaderLabels(['Item', 'Value'])
-            self.info[j].setColumnWidth(0, self.width * 0.06)
             self.info[j].horizontalHeader().setStretchLastSection(True)
             self.info[j].verticalHeader().hide()
-            data1 = ['State:', 'Total:', 'Pass:', 'Yield:']
-            data2 = ['Idle', '0', '0', '0']
+            data1 = ['State:', 'Total:', 'Pass:', 'Yield:','Test Time:', 'SN:']
+            data2 = ['Idle', '0', '0', '0', '0','']
 
-            for i in range(load.threadnum):
+            for i in range(6):
                 newItem1 = QTableWidgetItem(data1[i])
                 self.info[j].setItem(i, 0, newItem1)
                 newItem2 = QTableWidgetItem(data2[i])
                 self.info[j].setItem(i, 1, newItem2)
-
-    def set_state(self, result, thread_id):
-        # 设置系统测试状态
-        newItem = QTableWidgetItem(result)
-        self.info[thread_id].setItem(0, 1, newItem)
-        if(result=='Testing'):
-            newItem.setBackground(QColor(255,255,0))
-        elif (result == 'Fail'):
-            newItem.setBackground(QColor(255, 0, 0))
-        elif (result == 'Pass'):
-            newItem.setBackground(QColor(0, 255, 0))
-
-    def set_count(self, result, thread_id):
-        # 统计测试个数及通过率
-        self.total_cnt[thread_id] = int(self.info[thread_id].item(1, 1).text()) + 1
-        newItem = QTableWidgetItem(str(self.total_cnt[thread_id]))
-        self.info[thread_id].setItem(1, 1, newItem)
-        if(result=='Pass'):
-            self.pass_cnt[thread_id] = int(self.info[thread_id].item(2,1).text()) + 1
-            newItem = QTableWidgetItem(str(self.pass_cnt[thread_id]))
-            self.info[thread_id].setItem(2, 1, newItem)
-        self.y_cnt[thread_id] = self.pass_cnt[thread_id] / self.total_cnt[thread_id]
-        newItem = QTableWidgetItem(str("%.2f" % (self.y_cnt[thread_id] * 100)) + '%')
-        self.info[thread_id].setItem(3, 1, newItem)
-
+                if(i==5):
+                    newItem1.setBackground(QColor(255, 255, 0))
+                    newItem2.setBackground(QColor(255, 255, 0))
+                    #self.info[j].editItem(newItem2)
 
     def init_toolbar_ui(self):
         # 初始化工具栏
@@ -138,7 +112,6 @@ class MainUI(Ui_MainWindow, QMainWindow):
         self.actionStop.setIcon(icon2)
         self.actionMainwindow.setIcon(icon3)
         self.actionRefresh.setIcon(icon4)
-
         font = QtGui.QFont()
         font.setPointSize(10)
         self.mystepbar = QCheckBox()
@@ -155,12 +128,9 @@ class MainUI(Ui_MainWindow, QMainWindow):
         self.myloopbar.setText('LoopTest')
         self.myloopbar.setToolTip('Enable loop test')
         self.toolBar.addWidget(self.myloopbar)
-
         self.myloopbar.setFont(font)
-
         self.toolBar.addSeparator()
         self.actionContinue.setDisabled(True)
-
         self.language = QComboBox()
         #self.language.setText('LoopTest')
         self.language.setToolTip('Change language')
@@ -227,7 +197,6 @@ class MainUI(Ui_MainWindow, QMainWindow):
         for i in range(load.threadnum):
             self.testtree[i].setHeaderLabels(['测试项', '测试时间', '测试数据', '测试结果', '详细结果'])
 
-
     def English_ui(self):
         # 工具栏
         self.actionPause.setText('Pause')
@@ -263,7 +232,6 @@ class MainUI(Ui_MainWindow, QMainWindow):
         # 测试序列
         for i in range(load.threadnum):
             self.testtree[i].setHeaderLabels(['TestItems', 'TestTime', 'TestData', 'TestResult', 'TestDetails'])
-
 
     def change_language(self, lan):
         if(lan == 'EN'):

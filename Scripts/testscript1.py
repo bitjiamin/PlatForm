@@ -13,10 +13,14 @@ import log
 import zmq
 import os
 import subprocess
-#subprocess.Popen('C:\Project\Pnco.exe')
+from mainsetup import *
+
+
 class TestFunc():
-    def __init__(self):
+    def __init__(self, parent=None):
+        #super(Ui_MainWindow, self).__init__(parent)
         self.zmq_open()
+        #print(self.lb_title.text())
 
     def __del__(self):
         self.zmq_close()
@@ -46,10 +50,20 @@ class TestFunc():
     def zmq_close(self):
         self.socket.close()
 
-    def function1(self):
-        #self.zmq_comm('pretest')
+    def pretest(self):
         time.sleep(0.1)
-        return[0.5, 0.5, 'child1', 'child2']
+        ret = [0,  'pretest']
+        return ret
+
+    def posttest(self):
+        time.sleep(0.1)
+        ret = [0, 'posttest']
+        return ret
+
+    def function1(self):
+        time.sleep(0.1)
+        ret = [0.6, 0.5, 0.5, '12345']
+        return ret
 
     def function2(self):
         #self.zmq_comm('readimage')
