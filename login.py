@@ -7,14 +7,12 @@ description: 用户登陆
 Update date：2017.7.20
 version 1.0.0
 """
-import sys
 import systempath
 from PyQt5.QtWidgets import QDialog, QMessageBox, QDesktopWidget
 from PyQt5.QtGui import QPixmap
 from loginwindow import *
 import time
 import base64
-import inihelper
 import log
 
 class UserManager(Ui_login,QDialog):

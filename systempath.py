@@ -10,7 +10,6 @@ version 1.0.0
 
 import sys
 import os
-import inihelper
 
 frozen = 'not'
 if getattr(sys, 'frozen', False):

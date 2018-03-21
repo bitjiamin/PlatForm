@@ -16,7 +16,7 @@ import systempath
 
 threadnum = int(inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Thread'))
 class Load():
-    def __init__(self, path, parent=None):
+    def __init__(self, path):
         global loginfo
         self.path = systempath.bundle_dir + '/CSV Files/' + path
         self.seq_col1 = []

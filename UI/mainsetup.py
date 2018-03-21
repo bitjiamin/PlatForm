@@ -1,20 +1,28 @@
 # -*- coding: utf-8 -*-
-from mainwindow import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPixmap, QPalette, QColor
 from PyQt5.QtCore import QSize
+from PyQt5 import QtGui
+from PyQt5.uic import loadUi
 import systempath
 import log
 import inihelper
 import load
 
-class MainUI(Ui_MainWindow, QMainWindow):
+
+class MainUI(QMainWindow):
+    # 实现一个单例类
+    _instance = None
     __first_init = True
-    def __init__(self, parent=None):
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls, *args, **kwargs)
+        return cls._instance
+    def __init__(self, parent = None):
         if (self.__class__.__first_init):  # 只初始化一次
             self.__class__.__first_init = False  # 只初始化一次
             super(MainUI, self).__init__(parent)
-            self.setupUi(self)
+            loadUi(systempath.bundle_dir + '/UI/mainwindow.ui', self)  # 看到没，瞪大眼睛看
             log.loginfo.process_log('Initialize UI')
             # 获取屏幕分辨率
             self.screen = QDesktopWidget().screenGeometry()

@@ -13,14 +13,16 @@ import log
 import zmq
 import os
 import subprocess
-from mainsetup import *
+import mainsetup
 
 
 class TestFunc():
-    def __init__(self, parent=None):
-        #super(Ui_MainWindow, self).__init__(parent)
+    def __init__(self):
         self.zmq_open()
-        #print(self.lb_title.text())
+        try:
+            pass
+        except Exception as e:
+            print(e)
 
     def __del__(self):
         self.zmq_close()

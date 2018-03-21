@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Project\TestSeq\UI\editsequence.ui'
+# Form implementation generated from reading ui file 'editsequence.ui'
 #
 # Created by: PyQt5 UI code generator 5.9
 #

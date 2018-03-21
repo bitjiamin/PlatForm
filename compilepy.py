@@ -2,13 +2,14 @@
 
 import py_compile
 import os
-import sys
+import systempath
 
-rootDir = 'C:\\Project\\TestSeq'
+rootDir = systempath.bundle_dir
 f_list = os.listdir(rootDir)
 py_list = []
-for f in f_list:
-    if('.py' in f):
-        py_list.append(f)
-        py_compile.compile(rootDir + '\\' + f, rootDir + '\\' + f + 'c')
+if('main.pyc' not in f_list):
+    for f in f_list:
+        if('.py' in f):
+            py_list.append(f)
+            py_compile.compile(rootDir + '\\' + f, rootDir + '\\' + f + 'c')
 print(py_list)

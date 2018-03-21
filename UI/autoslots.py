@@ -12,9 +12,10 @@ import csv
 import time
 import threading
 from PyQt5.QtWidgets import *
+from PyQt5 import QtCore
 import systempath
 import log
-from autosetup import *
+import autosetup
 from imp import reload
 try:
     import automationscript
@@ -30,9 +31,16 @@ def reload_scripts():
         log.loginfo.process_log(str(e))
 
 auto = None
-class AutoThread(AutoUI, QDialog):
+class AutoThread(QDialog):
+    # 实现一个单例类
+    _instance = None
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls, *args, **kwargs)
+        return cls._instance
     def __init__(self, parent=None):
         super(AutoThread, self).__init__(parent)
+        self.autoui = autosetup.AutoUI()
         self.io_name = []
         self.io_on = []
         self.io_off = []
@@ -44,32 +52,31 @@ class AutoThread(AutoUI, QDialog):
         self.initialize_motion_ui()
         self.initialize_motion_state()
         # 连接写参数信号与槽
-        self.tw_para.itemChanged.connect(self.write_para)
+        self.autoui.tw_para.itemChanged.connect(self.write_para)
+
 
     # 初始化IO表，从配置文件中读取信息
     def initialize_motion_ui(self):
-        self.tw_io.setMaximumWidth(self.width * 0.4)
+        self.autoui.tw_io.setMaximumWidth(self.autoui.width * 0.4)
         self.read_io_config()
         self.read_axis_config()
-
         # 初始化参数表格
-        self.tw_para.setColumnCount(3)
-        self.tw_para.setRowCount(len(self.para_name)-1)
-        self.tw_para.setHorizontalHeaderLabels(['Parameters', 'Read', 'Write'])
-        self.tw_para.horizontalHeader().setStretchLastSection(True)
+        self.autoui.tw_para.setColumnCount(3)
+        self.autoui.tw_para.setRowCount(len(self.para_name)-1)
+        self.autoui.tw_para.setHorizontalHeaderLabels(['Parameters', 'Read', 'Write'])
+        self.autoui.tw_para.horizontalHeader().setStretchLastSection(True)
         i = 0
         for seq in self.para_name:
             if(i>0):
                 newItem = QTableWidgetItem(seq)
-                self.tw_para.setItem(i-1, 0, newItem)
+                self.autoui.tw_para.setItem(i-1, 0, newItem)
             i = i + 1
 
         # 初始化io表格
-        self.tw_io.setColumnCount(2)
-        self.tw_io.setRowCount(len(self.io_name)-1)
-        self.tw_io.setHorizontalHeaderLabels(['IO', 'Description'])
-        self.tw_io.horizontalHeader().setStretchLastSection(True)
-
+        self.autoui.tw_io.setColumnCount(2)
+        self.autoui.tw_io.setRowCount(len(self.io_name)-1)
+        self.autoui.tw_io.setHorizontalHeaderLabels(['IO', 'State'])
+        self.autoui.tw_io.horizontalHeader().setStretchLastSection(True)
         # 连接io表格信号与槽函数
         self.mapper = QtCore.QSignalMapper(self)
         i = 0
@@ -77,24 +84,24 @@ class AutoThread(AutoUI, QDialog):
             if(i != 0):
                 self.MyCheck = QCheckBox()
                 self.MyCheck.setText('--- ' + seq)
-                self.tw_io.setCellWidget(i-1, 0, self.MyCheck)
+                self.autoui.tw_io.setCellWidget(i-1, 0, self.MyCheck)
                 # newItem = QTableWidgetItem(self.io_desc[i])
                 # self.tw_io.setItem(i - 1, 1, newItem)
                 # 原始信号（表格中checkbox的鼠标点击信号）传递给map
-                self.tw_io.cellWidget(i - 1, 0).clicked.connect(self.mapper.map)
+                self.autoui.tw_io.cellWidget(i - 1, 0).clicked.connect(self.mapper.map)
                 # 设置map信号的转发规则, 转发为参数为int类型的信号
-                self.mapper.setMapping(self.tw_io.cellWidget(i - 1, 0), i - 1)
+                self.mapper.setMapping(self.autoui.tw_io.cellWidget(i - 1, 0), i - 1)
             i = i+1
         # map信号连接到自定义的槽函数，参数类型为int
         self.mapper.mapped[int].connect(self.write_io)
-
         # 初始化轴信息
         j = 0
-        self.cb_axis.clear()
+        self.autoui.cb_axis.clear()
         for seq in self.axis_name:
             if(j != 0):
-                self.cb_axis.addItem(seq)
+                self.autoui.cb_axis.addItem(seq)
             j = j+1
+
 
     def read_io_config(self):
         self.path = systempath.bundle_dir + '/CSV Files/' + 'IO.csv'
@@ -142,20 +149,21 @@ class AutoThread(AutoUI, QDialog):
         self.read_init_state()
 
     def write_io(self, index):
-        state = self.tw_io.cellWidget(index, 0).isChecked()
+        state = self.autoui.tw_io.cellWidget(index, 0).isChecked()
         if(state):
             newItem = QTableWidgetItem(self.io_on[index+1])
         else:
             newItem = QTableWidgetItem(self.io_off[index+1])
-        self.tw_io.setItem(index, 1, newItem)
+        self.autoui.tw_io.setItem(index, 1, newItem)
+        print('write io ok')
         # 需添加自定义写IO代码
 
     def write_para(self, item):
         if (item.column() == 2):
             newItem = QTableWidgetItem(item.text())
-            self.tw_para.setItem(item.row(), 1, newItem)
+            self.autoui.tw_para.setItem(item.row(), 1, newItem)
             # 需添加自定义写参数代码
-            print('write ok')
+            print('write para ok')
 
     def read_init_state(self):
         # 从最小的寄存器开始读取，中间无间断
@@ -179,18 +187,18 @@ class AutoThread(AutoUI, QDialog):
         i = 0
         for io in ls_io:
             if (io == 1):
-                self.tw_io.cellWidget(i, 0).setChecked(True)
+                self.autoui.tw_io.cellWidget(i, 0).setChecked(True)
                 newItem = QTableWidgetItem(self.io_on[i + 1])
-                self.tw_io.setItem(i, 1, newItem)
+                self.autoui.tw_io.setItem(i, 1, newItem)
             else:
-                self.tw_io.cellWidget(i, 0).setChecked(False)
+                self.autoui.tw_io.cellWidget(i, 0).setChecked(False)
                 newItem = QTableWidgetItem(self.io_off[i + 1])
-                self.tw_io.setItem(i, 1, newItem)
+                self.autoui.tw_io.setItem(i, 1, newItem)
             i = i + 1
         i = 0
         for para in ls_para:
             newItem = QTableWidgetItem(str(para))
-            self.tw_para.setItem(i, 1, newItem)
+            self.autoui.tw_para.setItem(i, 1, newItem)
             newItem1 = QTableWidgetItem(str(para))
-            self.tw_para.setItem(i, 2, newItem1)
+            self.autoui.tw_para.setItem(i, 2, newItem1)
             i = i + 1

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from PyQt5.QtWidgets import *
-from PyQt5 import QtCore
 from scansn import *
-import dataexchange
+import globaldata
 
 
 class SNUI(Ui_SN, QDialog):
@@ -23,6 +22,6 @@ class SNUI(Ui_SN, QDialog):
         self.le_sn.setFocus()
 
     def input_sn(self):
-        dataexchange.sn = self.le_sn.text()
+        globaldata.sn = self.le_sn.text()
         self.close()
 

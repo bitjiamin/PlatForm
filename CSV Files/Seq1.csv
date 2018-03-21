@@ -1,6 +1,6 @@
 TestItem,Function,Mode,Low Limit,Up Limit,Next Step,Level
 Test:PreTest,pretest,test,nan,nan,continue,root
-Test:Function1,function1,test,-2,-1,continue,root
+Test:Function1,function1,test,-1,-1,continue,root
 Test:Function1:Child1,function1,test,nan,nan,continue,child
 Test:Function1:Child2,function1,test,nan,nan,continue,child
 Test:Function2,function2,test,nan,nan,continue,root

@@ -18,10 +18,11 @@ import mainslots
 from imp import reload
 sys.path.append(systempath.bundle_dir + '/Scripts')
 sys.path.append(systempath.bundle_dir + '/UI')
+sys.path.append(systempath.bundle_dir + '/Module')
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QDialog, QMessageBox
 import imp
-import dataexchange
+import globaldata
 
 
 global testscript
@@ -31,6 +32,7 @@ try:
         name = imp.load_source('testscript' + str(i+1), systempath.bundle_dir + '/Scripts/testscript' + str(i+1) + '.py')
         testscript.append(name)
 except Exception as e:
+    print(e)
     log.loginfo.process_log(str(e))
 import copy
 
@@ -60,7 +62,7 @@ class TestThread(QtCore.QThread):
         self.pause = False
         self.stop = False
         self.loop = False
-        # self.looptime = 0
+        print(self.threadid)
         self.ts = testscript[self.threadid].TestFunc()
 
     def test_func(self):
@@ -146,7 +148,7 @@ class TestThread(QtCore.QThread):
         # 更新测试时间和测试结果，保存测试结果
         time2 = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 
-        data_head = [dataexchange.sn, total_result, 'no error', time1, time2, str(total_time)]
+        data_head = [globaldata.sn, total_result, 'no error', time1, time2, str(total_time)]
         data_head.extend(total_data)
         self.load.write_csv(data_head, self.threadid)
         log.loginfo.process_log('Thread' + str(self.threadid+1) + ':'+'total time： ' + str("%.2f" %total_time))
@@ -166,15 +168,17 @@ class TestThread(QtCore.QThread):
         else:
             self.test_func()
 
-global t_thread, t_load
+global t_thread, t_load, sload
 t_thread = []
 t_load = []
-
 for i in range(load.threadnum):
     s_load = load.Load('Seq'+str(i+1)+'.csv')
     s_load.load_seq()
     t_load.append(s_load)
     # log.loginfo.process_log('Load sequence')
+
+def init_thread():
+    global sload, t_thread
     s_thread = TestThread(s_load, i)
     t_thread.append(s_thread)
 

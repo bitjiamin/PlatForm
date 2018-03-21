@@ -8,12 +8,9 @@ Update date：2017.8.31
 version 1.0.0
 """
 
-from PyQt5.QtWidgets import QDialog, QMessageBox
 from userwindow import *
 from PyQt5.QtWidgets import *
-import time
 import systempath
-import inihelper
 import base64
 import log
 
