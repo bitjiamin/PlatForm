@@ -1,4 +1,3 @@
-from serialwindow import *
 import log
 import globaldata
 import load

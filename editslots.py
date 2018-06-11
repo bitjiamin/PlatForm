@@ -9,14 +9,17 @@ import editsetup
 class EditSlots():
     # 实现一个单例类
     _instance = None
+    __first_init = True
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super().__new__(cls, *args, **kwargs)
         return cls._instance
     def __init__(self):
-        editsetup.editui = editsetup.EditUI()
-        self.editui = editsetup.editui
-        self.connect_signal()
+        if (self.__class__.__first_init):  # 只初始化一次
+            editsetup.editui = editsetup.EditUI()
+            self.editui = editsetup.editui
+            self.connect_signal()
+            self.__class__.__first_init = False  # 只初始化一次
 
     def connect_signal(self):
         self.editui.cb_seq.currentIndexChanged.connect(self.editui.edit_sequence)
@@ -93,27 +96,27 @@ class EditSlots():
 
     # 删除当前行
     def delete_row(self):
-        self.editui.tableseq.removeRow(self.tableseq.currentRow())
+        self.editui.tableseq.removeRow(self.editui.tableseq.currentRow())
 
     def insert_row(self):
-        row_cnt = self.tableseq.currentRow()
-        self.editui.tableseq.insertRow(row_cnt)
-        for j in range(7):
-                if(j==2):
-                    self.MyCombo = QComboBox()
-                    self.MyCombo.addItem("test")
-                    self.MyCombo.addItem("skip")
-                    self.editui.tableseq.setCellWidget(row_cnt, j, self.MyCombo)
-                elif(j==5):
-                    self.MyCombo1 = QComboBox()
-                    self.MyCombo1.addItem("continue")
-                    self.MyCombo1.addItem("finish")
-                    self.editui.tableseq.setCellWidget(row_cnt, j, self.MyCombo1)
-                elif (j == 6):
-                    self.MyCombo2 = QComboBox()
-                    self.MyCombo2.addItem("root")
-                    self.MyCombo2.addItem("child")
-                    self.editui.tableseq.setCellWidget(row_cnt, j, self.MyCombo2)
-                else:
-                    newItem1 = QTableWidgetItem('')
-                    self.editui.tableseq.setItem(row_cnt, j, newItem1)
+        try:
+            row_cnt = self.editui.tableseq.currentRow()
+            self.editui.tableseq.insertRow(row_cnt)
+            for j in range(7):
+                    if(j==2):
+                        newItem1 = QTableWidgetItem('test')
+                        self.editui.tableseq.setItem(row_cnt, j, newItem1)
+                    elif(j==3 or j==4):
+                        newItem1 = QTableWidgetItem('nan')
+                        self.editui.tableseq.setItem(row_cnt, j, newItem1)
+                    elif (j == 5):
+                        newItem1 = QTableWidgetItem('continue')
+                        self.editui.tableseq.setItem(row_cnt, j, newItem1)
+                    elif (j == 6):
+                        newItem1 = QTableWidgetItem('root')
+                        self.editui.tableseq.setItem(row_cnt, j, newItem1)
+                    else:
+                        newItem1 = QTableWidgetItem('')
+                        self.editui.tableseq.setItem(row_cnt, j, newItem1)
+        except Exception as e:
+            print(e)

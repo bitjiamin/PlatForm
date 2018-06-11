@@ -44,6 +44,7 @@ class TestSeq(QMainWindow):
 
         self.mainui = mainsetup.MainUI()
         testthread.init_thread()
+        self.mains = MainSlots()
 
         self.visionui = visionsetup.VisionUI()
 
@@ -70,9 +71,9 @@ class TestSeq(QMainWindow):
         self.mainui.actionTcp_Debug.triggered.connect(self.tcp_debug_tool)
         self.mainui.actionSerial_Debug.triggered.connect(self.serial_debug_tool)
         self.mainui.actionToolBar.triggered.connect(self.view_toolbar)
-        self.mainui.actionOpen_CSV.triggered.connect(self.open_sequence)
-        self.mainui.actionOpen_Result.triggered.connect(self.open_result)
-        self.mainui.actionOpen_Log.triggered.connect(self.open_log)
+        self.mainui.actionOpen_CSV.triggered.connect(self.open_sequence_thread)
+        self.mainui.actionOpen_Result.triggered.connect(self.open_result_thread)
+        self.mainui.actionOpen_Log.triggered.connect(self.open_log_thread)
         self.mainui.actionClose_System.triggered.connect(self.close)
         self.mainui.actionSN_Window.triggered.connect(self.sn_window)
         self.mainui.actionVision_Window.triggered.connect(self.vision_window)
@@ -148,7 +149,7 @@ class TestSeq(QMainWindow):
     def initialize_tree(self, tree, items, levels):
         try:
             tree.setColumnCount(5)
-            tree.setHeaderLabels(['TestItems', 'Test Time', 'TestData', 'TestResult', ' Coordinate'])
+            tree.setHeaderLabels(['TestItems', 'Test Time', 'TestData', 'TestResult', ' Details'])
             # 设置行高为25
             tree.setStyleSheet("QTreeWidget::item{height:%dpx}"%int(self.height*0.03))
             header = tree.header()
@@ -216,7 +217,6 @@ class TestSeq(QMainWindow):
                     self.mainui.pe.setColor(QPalette.Window, QColor(255, 255, 0))  # 设置背景颜色
         except Exception as e:
             print(e)
-        print('start')
 
     # 测试结束后刷新UI等
     def test_end(self, ls):
@@ -250,41 +250,44 @@ class TestSeq(QMainWindow):
         log.loginfo.process_log('Pause test')
         for i in range(load.threadnum):
             testthread.t_thread[i].pause = True
-        self.actionPause.setDisabled(True)
-        self.actionContinue.setDisabled(False)
+        self.mainui.actionPause.setDisabled(True)
+        self.mainui.actionContinue.setDisabled(False)
 
     # 开启或关闭单步测试
     def step_test(self):
-        if(self.mystepbar.isChecked()):
+        if(self.mainui.mystepbar.isChecked()):
             for i in range(load.threadnum):
                 testthread.t_thread[i].pause = True
-            self.nextAction.setDisabled(False)
+            self.mainui.nextAction.setDisabled(False)
             log.loginfo.process_log('Enable step test')
         else:
             for i in range(load.threadnum):
                 testthread.t_thread[i].pause = False
-            self.nextAction.setDisabled(True)
+            self.mainui.nextAction.setDisabled(True)
             log.loginfo.process_log('Disable step test')
 
     # 暂停后继续测试
     def continue_tool(self):
         for i in range(load.threadnum):
             testthread.t_thread[i].pause = False
-        self.actionPause.setDisabled(False)
-        self.actionContinue.setDisabled(True)
+        self.mainui.actionPause.setDisabled(False)
+        self.mainui.actionContinue.setDisabled(True)
         log.loginfo.process_log('continue test')
 
     # 开启或关闭循环测试
     def enable_loop(self):
-        if(self.myloopbar.isChecked()):
-            for i in range(load.threadnum):
-                testthread.t_thread[i].loop = True
-                # testthread.t_thread[i].looptime = int(self.myeditbar.text())
-            log.loginfo.process_log('Enable loop test')
-        else:
-            for i in range(load.threadnum):
-                testthread.t_thread[i].loop = False
-            log.loginfo.process_log('Disable loop test')
+        try:
+            if(self.mainui.myloopbar.isChecked()):
+                for i in range(load.threadnum):
+                    testthread.t_thread[i].loop = True
+                    # testthread.t_thread[i].looptime = int(self.myeditbar.text())
+                log.loginfo.process_log('Enable loop test')
+            else:
+                for i in range(load.threadnum):
+                    testthread.t_thread[i].loop = False
+                log.loginfo.process_log('Disable loop test')
+        except Exception as e:
+            print(e)
 
     # 修改循环测试次数
     def edit_looptime(self):
@@ -336,7 +339,8 @@ class TestSeq(QMainWindow):
 
         if ls[3] == "Testing":
             for i in range(0,5):
-                self.root[thread_id][ls[0]].setBackground(i, QBrush(QColor(0,255,100)))
+                self.root[thread_id][ls[0]].setBackground(i, QBrush(QColor(0,255,100)))    # 设置树形控件的item为绿色
+                self.mainui.testtree[thread_id].scrollToItem(self.root[thread_id][ls[0]])  # 2018.5.5更新，树形控件自动滚动到当前测试的行
         elif "Fail" in ls[3]:
             self.mainui.bar[thread_id].setValue(ls[0])
             for i in range(0, 5):
@@ -478,9 +482,12 @@ class TestSeq(QMainWindow):
 
     # 切换到手动控制界面
     def motion_debug(self):
-        auto = autoslots.AutoThread()
-        auto.autoui.resize(self.width * 0.8, self.height * 0.7)
-        auto.autoui.show()
+        try:
+            auto = autoslots.AutoThread()
+            auto.autoui.resize(self.width * 0.8, self.height * 0.7)
+            auto.autoui.show()
+        except Exception as e:
+            print(e)
 
     # 解析zmq server收到的内容
     def recv_server(self, ls):
@@ -490,14 +497,31 @@ class TestSeq(QMainWindow):
         if (ls[0] == 'Debug'):
             self.debug = True
             self.test_start()
+        if (ls[0] == 'Stop'):
+            self.test_break()
+        if (ls[0] == 'Pause'):
+            self.test_pause()
+
+    def open_sequence_thread(self):
+        thread = threading.Thread(target=self.open_sequence)
+        thread.setDaemon(True)
+        thread.start()
 
     def open_sequence(self):
-        filename = QFileDialog.getOpenFileName(self, "open", systempath.bundle_dir + '/CSV Files', "Csv files(*.csv)")
-        if (platform.system() == "Windows"):
-            os.startfile(filename[0])
-        else:
-            import subprocess
-            subprocess.call(["open", filename[0]])
+        try:
+            filename = QFileDialog.getOpenFileName(self, "open", systempath.bundle_dir + '/CSV Files', "Csv files(*.csv)")
+            if (platform.system() == "Windows"):
+                os.startfile(filename[0])
+            else:
+                import subprocess
+                subprocess.call(["open", filename[0]])
+        except Exception as e:
+            print(e)
+
+    def open_result_thread(self):
+        thread = threading.Thread(target=self.open_result)
+        thread.setDaemon(True)
+        thread.start()
 
     def open_result(self):
         filename = QFileDialog.getOpenFileName(self, "open", systempath.bundle_dir + '/Result', "Csv files(*.csv)")
@@ -506,6 +530,11 @@ class TestSeq(QMainWindow):
         else:
             import subprocess
             subprocess.call(["open", filename[0]])
+
+    def open_log_thread(self):
+        thread = threading.Thread(target=self.open_log)
+        thread.setDaemon(True)
+        thread.start()
 
     def open_log(self):
         filename = QFileDialog.getOpenFileName(self, "open", systempath.bundle_dir + '/Log',"Log files(*.log)")
@@ -575,5 +604,5 @@ if __name__ == '__main__':
         if(user.loginok):
             seq = TestSeq()
             seq.mainui.showMaximized()
-            seq.snwd.show()
+            # seq.snwd.show()
             sys.exit(app.exec_())

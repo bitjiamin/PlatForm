@@ -9,17 +9,20 @@ version 1.0.0
 """
 
 from PyQt5.QtWidgets import QDialog, QDesktopWidget
-from tcpwindow import *
 import socket
 import threading
 import time
 import log
+import systempath
+from PyQt5.uic import loadUi
+
 
 socket.setdefaulttimeout(0.5)
-class TcpTool(Ui_tcptool, QDialog):
+class TcpTool(QDialog):
     def __init__(self, parent=None):
         super(TcpTool, self).__init__(parent)
-        self.setupUi(self)
+        loadUi(systempath.bundle_dir + '/UI/tcptool.ui', self)  # 看到没，瞪大眼睛看
+
         self.screen = QDesktopWidget().screenGeometry()
         self.width = self.screen.width()
         self.height = self.screen.height()

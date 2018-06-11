@@ -11,15 +11,20 @@ version 1.0.0
 from PyQt5.QtWidgets import QDialog
 import serial
 import serial.tools.list_ports
-from serialwindow import *
+import systempath
 import threading
 from PyQt5.QtWidgets import QDesktopWidget
 import log
+from PyQt5.uic import loadUi
 
-class SerialTool(Ui_serialtool, QDialog):
+class SerialTool(QDialog):
     def __init__(self, parent = None):
         super(SerialTool, self).__init__(parent)
-        self.setupUi(self)
+
+        # self.setupUi(self)
+
+        loadUi(systempath.bundle_dir + '/UI/serialtool.ui', self)  # 看到没，瞪大眼睛看
+
         self.screen = QDesktopWidget().screenGeometry()
         self.width = self.screen.width()
         self.height = self.screen.height()

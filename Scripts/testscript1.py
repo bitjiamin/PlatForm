@@ -11,18 +11,14 @@ version 1.0.0
 import time
 import log
 import zmq
-import os
-import subprocess
-import mainsetup
 
 
 class TestFunc():
     def __init__(self):
-        self.zmq_open()
         try:
-            pass
+            self.zmq_open()
         except Exception as e:
-            print(e)
+            log.loginfo.process_log('testscript1 init:' + str(e))
 
     def __del__(self):
         self.zmq_close()
@@ -34,7 +30,7 @@ class TestFunc():
         self.socket.RCVTIMEO = 2000
         self.socket.SNDTIMEO = 1000
         try:
-            self.socket.connect('tcp://127.0.0.1:5000')
+            self.socket.connect('tcp://127.0.0.1:5555')
         except Exception as e:
             log.loginfo.process_log(str(e))
 
@@ -57,59 +53,57 @@ class TestFunc():
         ret = [0,  'pretest']
         return ret
 
+    def function1(self):
+        time.sleep(0.1)
+        ret = [0,  'step1']
+        return ret
+
+    def function2(self):
+        time.sleep(0.1)
+        ret = [0, 'step2']
+        return ret
+
+    def function3(self):
+        time.sleep(0.1)
+        ret = [0, 'step3']
+        return ret
+
+    def function4(self):
+        time.sleep(0.1)
+        ret = [0, 'step4']
+        return ret
+
+    def function5(self):
+        time.sleep(0.1)
+        ret = [0, 'step5']
+        return ret
+
+    def function6(self):
+        time.sleep(0.1)
+        ret = [0, 'step6']
+        return ret
+
+    def function7(self):
+        time.sleep(0.1)
+        ret = [0, 'step7']
+        return ret
+
+    def function8(self):
+        time.sleep(0.1)
+        ret = [0, 'step8']
+        return ret
+
+    def function9(self):
+        time.sleep(0.1)
+        ret = [0, 'step9']
+        return ret
+
+    def function10(self):
+        time.sleep(0.1)
+        ret = [0, 'step10']
+        return ret
+
     def posttest(self):
         time.sleep(0.1)
         ret = [0, 'posttest']
         return ret
-
-    def function1(self):
-        time.sleep(0.1)
-        ret = [0.6, 0.5, 0.5, '12345']
-        return ret
-
-    def function2(self):
-        #self.zmq_comm('readimage')
-        time.sleep(0.5)
-        return [10, 'fun2']
-
-    def function3(self):
-        #ret = self.zmq_comm('getimagesize')
-        time.sleep(0.5)
-        return [0, 'fun3']
-
-    def function4(self):
-        #self.zmq_comm('posttest')
-        time.sleep(0.5)
-        return [0.5, 'fun4']
-
-    def function5(self):
-        time.sleep(0.5)
-        return [0.5,'fun5']
-
-    def function6(self):
-        time.sleep(0.5)
-        return [0.5, 'fun6']
-
-    def function7(self):
-        time.sleep(0.5)
-        return [0.5, 'fun7']
-
-    def function8(self):
-        time.sleep(0.5)
-        return [0.9, 'fun8']
-
-    def function9(self):
-        time.sleep(0.5)
-        return [0.9,'fun9']
-
-    def function10(self):
-        time.sleep(0.5)
-        return [0.5,'fun10']
-
-    def function11(self):
-        time.sleep(0.5)
-        return [0.9, 'fun11']
-
-    def function12(self):
-        time.sleep(0.5)
-        return [0.9, 'fun12']

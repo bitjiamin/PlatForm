@@ -62,7 +62,6 @@ class TestThread(QtCore.QThread):
         self.pause = False
         self.stop = False
         self.loop = False
-        print(self.threadid)
         self.ts = testscript[self.threadid].TestFunc()
 
     def test_func(self):

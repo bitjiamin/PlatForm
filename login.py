@@ -9,19 +9,21 @@ version 1.0.0
 """
 import systempath
 from PyQt5.QtWidgets import QDialog, QMessageBox, QDesktopWidget
+from PyQt5 import QtCore
 from PyQt5.QtGui import QPixmap
-from loginwindow import *
 import time
 import base64
 import log
+import systempath
+from PyQt5.uic import loadUi
 
-class UserManager(Ui_login,QDialog):
+class UserManager(QDialog):
     loginsignal = QtCore.pyqtSignal(list)
     loginok = False
     username = ''
     def __init__(self, parent=None):
         super(UserManager, self).__init__(parent)
-        self.setupUi(self)
+        loadUi(systempath.bundle_dir + '/UI/login.ui', self)  # 看到没，瞪大眼睛看
         self.cb_user.currentIndexChanged.connect(self.userchange)
         self.pb_login.clicked.connect(self.userlogin)
         self.pb_exit.clicked.connect(self.exit)

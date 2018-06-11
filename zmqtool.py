@@ -8,14 +8,16 @@ Update date：2017.7.20
 version 1.0.0
 """
 
-from PyQt5.QtWidgets import QDialog, QMessageBox
-from zmqwindow import *
+from PyQt5.QtWidgets import QDialog
+from PyQt5.uic import loadUi
+import systempath
 import time
 
-class ZmqTool(Ui_zmqtool, QDialog):
+
+class ZmqTool(QDialog):
     def __init__(self, parent=None):
         super(ZmqTool, self).__init__(parent)
-        self.setupUi(self)
+        loadUi(systempath.bundle_dir + '/UI/zmqtool.ui', self)  # 看到没，瞪大眼睛看
         self.setWindowTitle('Zmq Debug')
 
     def display_recv_msg(self, msg):

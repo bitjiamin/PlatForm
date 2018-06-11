@@ -2,6 +2,7 @@
 from PyQt5.QtWidgets import *
 from scansn import *
 import globaldata
+import mainsetup
 
 
 class SNUI(Ui_SN, QDialog):
@@ -22,6 +23,8 @@ class SNUI(Ui_SN, QDialog):
         self.le_sn.setFocus()
 
     def input_sn(self):
+        self.mainui = mainsetup.MainUI()
+
         globaldata.sn = self.le_sn.text()
         self.close()
 

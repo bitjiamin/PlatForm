@@ -6,11 +6,10 @@ import systempath
 import log
 import inihelper
 import testthread
-from editsequence import *
 
 
 global editui
-class EditUI(Ui_editsequence, QDialog):
+class EditUI(QDialog):
     # 实现一个单例类
     _instance = None
     __first_init = True
@@ -23,8 +22,8 @@ class EditUI(Ui_editsequence, QDialog):
         if (self.__class__.__first_init):  # 只初始化一次
             self.__class__.__first_init = False  # 只初始化一次
             super(EditUI, self).__init__(parent)
-            self.setupUi(self)
-            #loadUi(systempath.bundle_dir + '/UI/editsequence.ui', self)  # 看到没，瞪大眼睛看
+            # self.setupUi(self)
+            loadUi(systempath.bundle_dir + '/UI/editsequence.ui', self)  # 看到没，瞪大眼睛看
             # 获取屏幕分辨率
             self.screen = QDesktopWidget().screenGeometry()
             self.width = self.screen.width()

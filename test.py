@@ -1,34 +1,30 @@
-# -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
-class Singleton(object):
-    def __new__(cls, *args, **kwargs):
-        if not hasattr(cls, '__instance'):
-            print('before new')
-            print(cls)
-            cls.__instance = object.__new__(cls, *args, **kwargs)
-            print('after new')
-            cls.__instance.__Singleton_Init__(*args, **kwargs)
-        return cls.__instance
+# -*- coding: UTF-8 -*-
+"""
+FileName: tcpserver.py
+Author: jiaminbit@sina.com
+Create date: 2018.5.6
+description: 测试脚本，将各测试项的函数定义在该文件中
+Update date：2018.5.6
+version 1.0.0
+"""
 
-    def __init__(self):
-        print("__init__")
-
-    def __Singleton_Init__(self):
-        print("__Singleton_Init__")
-
-
-class BB(Singleton):
-    pass
+import clr
+import sys
+import System
+import os
+import time
+import threading
 
 
-class CC(Singleton):
-    pass
+def live_image():
+    while(True):
+        time.sleep(1)
+        print('run')
 
 
-c = CC()
-c1 = CC()
-b = BB()
-b.a = 2
-c.a = 3
-print(id(c), id(c1))
-print(b.a, c.a)
+live = threading.Thread(target=live_image)
+live.setDaemon(True)
+live.start()
+
+time.sleep(5)
+os.system('pause')

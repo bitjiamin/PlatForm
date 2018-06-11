@@ -8,16 +8,17 @@ Update date：2017.8.31
 version 1.0.0
 """
 
-from userwindow import *
 from PyQt5.QtWidgets import *
+from PyQt5.uic import loadUi
 import systempath
 import base64
 import log
 
-class UserManage(Ui_usermanage, QDialog):
+class UserManage(QDialog):
     def __init__(self, parent=None):
         super(UserManage, self).__init__(parent)
-        self.setupUi(self)
+        loadUi(systempath.bundle_dir + '/UI/usermanage.ui', self)  # 看到没，瞪大眼睛看
+
         self.pb_savepw.clicked.connect(self.change_password)
         self.pb_deluser.clicked.connect(self.delete_user)
         self.le_old.setEchoMode(2)

@@ -12,4 +12,3 @@ if('main.pyc' not in f_list):
         if('.py' in f):
             py_list.append(f)
             py_compile.compile(rootDir + '\\' + f, rootDir + '\\' + f + 'c')
-print(py_list)

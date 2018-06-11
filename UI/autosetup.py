@@ -18,7 +18,8 @@ import systempath
 
 
 class AutoUI(QDialog, QtCore.QThread):
-    iosingnal = QtCore.pyqtSignal(list)
+    showsingnal = QtCore.pyqtSignal(bool)
+    closesingnal = QtCore.pyqtSignal(bool)
     # 实现一个单例类
     _instance = None
     __first_init = True
@@ -41,6 +42,12 @@ class AutoUI(QDialog, QtCore.QThread):
             self.lb_title.setMaximumHeight(self.height*0.1)
             self.lan = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Language')
             self.change_language(self.lan)
+
+    def showEvent(self, QShowEvent):
+        self.showsingnal.emit(True)
+
+    def closeEvent(self, QCloseEvent):
+        self.closesingnal.emit(True)
 
     def English_ui(self):
         # 序列编辑

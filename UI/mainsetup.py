@@ -45,33 +45,31 @@ class MainUI(QMainWindow):
             self.info = []
             self.bar = []
 
-        for i in range(load.threadnum):
-            listname = getattr(self, 'testlist' + str(i+1))
-            infoname = getattr(self, 'systeminfo' + str(i + 1))
-            barname = getattr(self, 'pbar' + str(i + 1))
-            self.testtree.append(listname)
-            self.info.append(infoname)
-            self.bar.append(barname)
+            for i in range(load.threadnum):
+                listname = getattr(self, 'testlist' + str(i+1))
+                infoname = getattr(self, 'systeminfo' + str(i + 1))
+                barname = getattr(self, 'pbar' + str(i + 1))
+                self.testtree.append(listname)
+                self.info.append(infoname)
+                self.bar.append(barname)
 
-        self.total_cnt = []
-        self.pass_cnt = []
-        self.y_cnt = []
-        for i in range(load.threadnum):
-            self.total_cnt.append(0)
-            self.pass_cnt.append(0)
-            self.y_cnt.append(0)
+            self.total_cnt = []
+            self.pass_cnt = []
+            self.y_cnt = []
+            for i in range(load.threadnum):
+                self.total_cnt.append(0)
+                self.pass_cnt.append(0)
+                self.y_cnt.append(0)
 
-        # 初始化各界面
-        self.init_main_ui()
-        self.init_toolbar_ui()
-        self.init_systeminfo()
-        self.disable_window()
-        # 实例化信号槽需要用到的类
+            # 初始化各界面
+            self.init_main_ui()
+            self.init_toolbar_ui()
+            self.init_systeminfo()
+            self.disable_window()
+            # 实例化信号槽需要用到的类
 
     def init_main_ui(self):
         # 初始化主界面各控件大小
-        for i in range(load.threadnum):
-            self.info[i].setMaximumWidth(self.width * 0.2)
         self.lb_title.setFixedHeight(self.height * 0.11)
         self.pe2.setColor(QPalette.WindowText, QColor(8, 80, 208))  # 设置字体颜色
         self.lb_main_user.setPalette(self.pe2)
@@ -91,7 +89,6 @@ class MainUI(QMainWindow):
             self.info[j].verticalHeader().hide()
             data1 = ['State:', 'Total:', 'Pass:', 'Yield:','Test Time:', 'SN:']
             data2 = ['Idle', '0', '0', '0', '0','']
-
             for i in range(6):
                 newItem1 = QTableWidgetItem(data1[i])
                 self.info[j].setItem(i, 0, newItem1)
@@ -140,20 +137,18 @@ class MainUI(QMainWindow):
         self.toolBar.addSeparator()
         self.actionContinue.setDisabled(True)
         self.language = QComboBox()
-        #self.language.setText('LoopTest')
         self.language.setToolTip('Change language')
         self.language.addItem('English')
         self.language.addItem('中文')
         self.language.setFixedWidth(self.width * 0.05)
-        # self.toolBar.addWidget(self.language)
         self.toolBar.setFixedHeight(self.height*0.03)
         self.toolBar.setIconSize(QSize(int(self.height*0.02),int(self.height*0.03)))
         self.language.setStyle(QStyleFactory.create("Fusion"))  # Plastique
-
         self.lan = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Language')
         self.change_language(self.lan)
 
     def disable_window(self):
+        self.actionSN_Window.setVisible(False)
         self.visionui = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Vision')
         self.autoui = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Automation')
         self.sequi = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Sequence')
@@ -215,7 +210,7 @@ class MainUI(QMainWindow):
         self.actionLog.setText('Log')
         self.mystepbar.setText('StepTest')
         self.nextAction.setText('Next')
-        self.myloopbar.setText('LoopTest:')
+        self.myloopbar.setText('LoopTest')
         # 菜单栏
         self.menuFile.setTitle('File')
         self.actionOpen_CSV.setText('Open Sequence')
