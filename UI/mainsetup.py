@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPixmap, QPalette, QColor
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, Qt
 from PyQt5 import QtGui
 from PyQt5.uic import loadUi
 import systempath
@@ -36,6 +37,7 @@ class MainUI(QMainWindow):
             self.lb_ia.setPixmap(pixMap)
 
             # 读取标题与版本号
+
             self.lb_title.setText(inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Title'))
             self.lb_ver.setText(inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Version'))
             self.pe = QPalette()
@@ -63,10 +65,28 @@ class MainUI(QMainWindow):
 
             # 初始化各界面
             self.init_main_ui()
-            self.init_toolbar_ui()
             self.init_systeminfo()
+            self.init_toolbar_ui()
             self.disable_window()
-            # 实例化信号槽需要用到的类
+
+            #添加右键菜单
+            self.lb_image.setContextMenuPolicy(3)
+            self.lb_image.customContextMenuRequested.connect(self.showContextMenu)
+            self.cmenu = QMenu(self)
+            if(self.lan=='EN'):
+                self.actsnap = self.cmenu.addAction('Shot')
+                self.actstart = self.cmenu.addAction('Live')
+                self.actstop = self.cmenu.addAction('Stop')
+                self.actsave = self.cmenu.addAction('Save')
+            else:
+                self.actsnap = self.cmenu.addAction('抓拍')
+                self.actstart = self.cmenu.addAction('实时拍照')
+                self.actstop = self.cmenu.addAction('停止')
+                self.actsave = self.cmenu.addAction('保存图片')
+
+    def showContextMenu(self, pos):
+        self.cmenu.move(QtGui.QCursor.pos())
+        self.cmenu.show()
 
     def init_main_ui(self):
         # 初始化主界面各控件大小
@@ -76,6 +96,7 @@ class MainUI(QMainWindow):
         self.lb_user_title.setPalette(self.pe2)
         for i in range(load.threadnum):
             #self.testtree[i].setStyleSheet('background-color: rgb(255, 255, 255);')
+            self.testtree[i].header().setDefaultAlignment(Qt.AlignCenter)
             pass
         self.tabWidget.tabBar().hide()
 
@@ -84,7 +105,7 @@ class MainUI(QMainWindow):
         for j in range(load.threadnum):
             self.info[j].setRowCount(50)
             self.info[j].setColumnCount(2)
-            self.info[j].setHorizontalHeaderLabels(['Item', 'Value'])
+            # self.info[j].setHorizontalHeaderLabels(['Item', 'Value'])
             self.info[j].horizontalHeader().setStretchLastSection(True)
             self.info[j].verticalHeader().hide()
             data1 = ['State:', 'Total:', 'Pass:', 'Yield:','Test Time:', 'SN:']
@@ -95,9 +116,10 @@ class MainUI(QMainWindow):
                 newItem2 = QTableWidgetItem(data2[i])
                 self.info[j].setItem(i, 1, newItem2)
                 if(i==5):
-                    newItem1.setBackground(QColor(255, 255, 0))
-                    newItem2.setBackground(QColor(255, 255, 0))
+                    #newItem1.setBackground(QColor(255, 255, 0))
+                    #newItem2.setBackground(QColor(255, 255, 0))
                     #self.info[j].editItem(newItem2)
+                    pass
 
     def init_toolbar_ui(self):
         # 初始化工具栏
@@ -143,6 +165,7 @@ class MainUI(QMainWindow):
         self.language.setFixedWidth(self.width * 0.05)
         self.toolBar.setFixedHeight(self.height*0.03)
         self.toolBar.setIconSize(QSize(int(self.height*0.02),int(self.height*0.03)))
+
         self.language.setStyle(QStyleFactory.create("Fusion"))  # Plastique
         self.lan = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Language')
         self.change_language(self.lan)
@@ -169,26 +192,26 @@ class MainUI(QMainWindow):
         self.actionPause.setText('暂停')
         self.actionContinue.setText('继续')
         self.actionLoginTool.setText('登陆')
-        self.actionEdit.setText('编辑')
+        self.actionEdit.setText('编辑序列')
         self.actionAutomation.setText('运动控制')
         self.actionLog.setText('日志')
         self.mystepbar.setText('单步测试')
         self.nextAction.setText('下一步')
-        self.myloopbar.setText('循环测试:')
+        self.myloopbar.setText('循环测试')
         # 菜单栏
         self.menuFile.setTitle('文件')
         self.actionOpen_CSV.setText('打开测试序列CSV')
         self.actionOpen_Result.setText('打开结果CSV')
         self.actionOpen_Log.setText('打开日志文件')
-        self.actionReload_Scripts.setText('重新加载脚本')
-        self.actionReload_CSV.setText('重新加载序列')
+        self.actionReload_Scripts.setText('重载脚本')
+        self.actionReload_CSV.setText('重载序列')
         self.actionClose_System.setText('退出系统')
         self.menuUser.setTitle('用户')
         self.actionLogin.setText('登陆系统')
         self.actionUser_Manage.setText('用户管理')
         self.menuTool.setTitle('工具')
-        self.actionZmq_Debug.setText('Zmq调试工具')
-        self.actionTcp_Debug.setText('Tcp调试工具')
+        self.actionZmq_Debug.setText('ZMQ调试工具')
+        self.actionTcp_Debug.setText('TCP调试工具')
         self.actionSerial_Debug.setText('串口调试工具')
         self.menuWindow.setTitle('窗口')
         self.actionMain_Window.setText('主窗口')
@@ -199,6 +222,7 @@ class MainUI(QMainWindow):
         # 测试序列
         for i in range(load.threadnum):
             self.testtree[i].setHeaderLabels(['测试项', '测试时间', '测试数据', '测试结果', '详细结果'])
+            self.info[i].setHorizontalHeaderLabels(['标签', '值'])
 
     def English_ui(self):
         # 工具栏
@@ -223,8 +247,8 @@ class MainUI(QMainWindow):
         self.actionLogin.setText('Login System')
         self.actionUser_Manage.setText('User Manage')
         self.menuTool.setTitle('Tool')
-        self.actionZmq_Debug.setText('Zmq Debug')
-        self.actionTcp_Debug.setText('Tcp Debug')
+        self.actionZmq_Debug.setText('ZMQ Debug')
+        self.actionTcp_Debug.setText('TCP Debug')
         self.actionSerial_Debug.setText('Serial Debug')
         self.menuWindow.setTitle('Window')
         self.actionMain_Window.setText('Main Window')
@@ -235,6 +259,7 @@ class MainUI(QMainWindow):
         # 测试序列
         for i in range(load.threadnum):
             self.testtree[i].setHeaderLabels(['TestItems', 'TestTime', 'TestData', 'TestResult', 'TestDetails'])
+            self.info[i].setHorizontalHeaderLabels(['Item', 'Value'])
 
     def change_language(self, lan):
         if(lan == 'EN'):

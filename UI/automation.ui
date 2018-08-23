@@ -13,39 +13,31 @@
   <property name="windowTitle">
    <string>Automation</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2" columnstretch="1,1,1,5">
+  <layout class="QGridLayout" name="gridLayout_2" rowstretch="2,1,1,1,1,1,1,1,1,1" columnstretch="3,2,2,10">
+   <property name="horizontalSpacing">
+    <number>11</number>
+   </property>
    <property name="verticalSpacing">
     <number>40</number>
    </property>
-   <item row="0" column="0">
-    <widget class="QLabel" name="lb_title">
-     <property name="font">
-      <font>
-       <pointsize>25</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Automation</string>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="3" rowspan="10">
     <layout class="QGridLayout" name="gridLayout" columnstretch="2,2,3,3">
      <property name="leftMargin">
-      <number>17</number>
+      <number>0</number>
      </property>
      <property name="topMargin">
-      <number>17</number>
+      <number>0</number>
      </property>
      <property name="rightMargin">
-      <number>17</number>
+      <number>0</number>
      </property>
      <property name="bottomMargin">
-      <number>17</number>
+      <number>0</number>
      </property>
-     <property name="spacing">
+     <property name="horizontalSpacing">
+      <number>0</number>
+     </property>
+     <property name="verticalSpacing">
       <number>11</number>
      </property>
      <item row="0" column="0">
@@ -65,6 +57,8 @@
        <property name="font">
         <font>
          <pointsize>15</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
         </font>
        </property>
        <property name="text">
@@ -91,7 +85,9 @@
       <widget class="QLabel" name="lb_para">
        <property name="font">
         <font>
-         <pointsize>13</pointsize>
+         <pointsize>15</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
         </font>
        </property>
        <property name="text">
@@ -116,36 +112,27 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="lb_axis">
+   <item row="0" column="0">
+    <widget class="QLabel" name="lb_title">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>10000</height>
-      </size>
-     </property>
      <property name="font">
       <font>
-       <pointsize>15</pointsize>
+       <pointsize>25</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
      <property name="text">
-      <string>Axis Name：</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+      <string>Automation</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <widget class="QComboBox" name="cb_axis">
      <property name="font">
       <font>
@@ -157,19 +144,25 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="lb_real_pos">
+   <item row="5" column="2">
+    <widget class="QPushButton" name="pb_jog2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="font">
       <font>
        <pointsize>13</pointsize>
       </font>
      </property>
      <property name="text">
-      <string>Current Position:</string>
+      <string>Jog-</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="4" column="1">
     <widget class="QDoubleSpinBox" name="dsb_real_pos">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -196,7 +189,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="2">
+   <item row="4" column="2">
     <widget class="QPushButton" name="pb_jog1">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -209,13 +202,22 @@
        <pointsize>13</pointsize>
       </font>
      </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
      <property name="text">
       <string>Jog+</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="5" column="0">
     <widget class="QLabel" name="lb_real_speed">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="font">
       <font>
        <pointsize>13</pointsize>
@@ -226,7 +228,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
+   <item row="5" column="1">
     <widget class="QDoubleSpinBox" name="dsb_real_speed">
      <property name="font">
       <font>
@@ -244,8 +246,26 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="2">
-    <widget class="QPushButton" name="pb_jog2">
+   <item row="4" column="0">
+    <widget class="QLabel" name="lb_real_pos">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Current Position:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="QPushButton" name="pb_reset">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -257,42 +277,36 @@
        <pointsize>13</pointsize>
       </font>
      </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 127);</string>
+     </property>
      <property name="text">
-      <string>Jog-</string>
+      <string>Reset</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="lb_auto_speed">
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
+   <item row="9" column="2">
+    <widget class="QPushButton" name="pb_axis_stop">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-     <property name="text">
-      <string>Auto Speed:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="1">
-    <widget class="QDoubleSpinBox" name="dsb_auto_speed">
      <property name="font">
       <font>
        <pointsize>13</pointsize>
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(213, 213, 213);</string>
+      <string notr="true">background-color: rgb(255, 0, 0);</string>
      </property>
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-     <property name="minimum">
-      <double>-10000.000000000000000</double>
+     <property name="text">
+      <string>Stop</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="7" column="0">
     <widget class="QLabel" name="lb_man_speed">
      <property name="font">
       <font>
@@ -304,7 +318,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="7" column="1">
     <widget class="QDoubleSpinBox" name="dsb_man_speed">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -331,7 +345,25 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="2">
+   <item row="6" column="1">
+    <widget class="QDoubleSpinBox" name="dsb_auto_speed">
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(213, 213, 213);</string>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="minimum">
+      <double>-10000.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="2">
     <widget class="QPushButton" name="pb_absolute">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -349,19 +381,43 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="0">
-    <widget class="QLabel" name="lb_step">
+   <item row="9" column="0">
+    <widget class="QPushButton" name="pb_home">
      <property name="font">
       <font>
        <pointsize>13</pointsize>
       </font>
      </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(85, 255, 127);</string>
+     </property>
      <property name="text">
-      <string>Distance:</string>
+      <string>Home</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
+   <item row="8" column="2">
+    <widget class="QPushButton" name="pb_relative">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string>RelGo</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
     <widget class="QDoubleSpinBox" name="dsb_step">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -382,120 +438,56 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="2">
-    <widget class="QPushButton" name="pb_relative">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>RelGo</string>
-     </property>
-    </widget>
-   </item>
    <item row="8" column="0">
-    <widget class="QPushButton" name="pb_home">
+    <widget class="QLabel" name="lb_step">
      <property name="font">
       <font>
        <pointsize>13</pointsize>
       </font>
      </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(85, 255, 127);</string>
-     </property>
      <property name="text">
-      <string>Home</string>
+      <string>Distance:</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
-    <widget class="QPushButton" name="pb_reset">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+   <item row="6" column="0">
+    <widget class="QLabel" name="lb_auto_speed">
      <property name="font">
       <font>
        <pointsize>13</pointsize>
       </font>
      </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 127);</string>
-     </property>
      <property name="text">
-      <string>Reset</string>
+      <string>Auto Speed:</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="2">
-    <widget class="QPushButton" name="pb_axis_stop">
+   <item row="2" column="0">
+    <widget class="QLabel" name="lb_axis">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>10000</height>
+      </size>
      </property>
      <property name="font">
       <font>
-       <pointsize>13</pointsize>
+       <pointsize>15</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
       </font>
      </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 0, 0);</string>
-     </property>
      <property name="text">
-      <string>Stop</string>
+      <string>Axis Name：</string>
      </property>
-    </widget>
-   </item>
-   <item row="9" column="0">
-    <widget class="QCheckBox" name="cb_zero">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
-     <property name="text">
-      <string>Zero</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="1">
-    <widget class="QCheckBox" name="cb_limitm">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Limit-</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="2">
-    <widget class="QCheckBox" name="cb_limitp">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Limit+</string>
+     <property name="alignment">
+      <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
      </property>
     </widget>
    </item>

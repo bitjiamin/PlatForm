@@ -16,33 +16,29 @@ import threading
 import load
 import mainslots
 from imp import reload
-sys.path.append(systempath.bundle_dir + '/Scripts')
-sys.path.append(systempath.bundle_dir + '/UI')
-sys.path.append(systempath.bundle_dir + '/Module')
+sys.path.append(systempath.bundle_dir + '\\Scripts')
+sys.path.append(systempath.bundle_dir + '\\UI')
+sys.path.append(systempath.bundle_dir + '\\Module')
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QDialog, QMessageBox
 import imp
 import globaldata
-
+import copy
+import os
 
 global testscript
 testscript = []
+
 try:
     for i in range(load.threadnum):
-        name = imp.load_source('testscript' + str(i+1), systempath.bundle_dir + '/Scripts/testscript' + str(i+1) + '.py')
-        testscript.append(name)
+        f = systempath.bundle_dir + '/Scripts/testscript' + str(i+1) + '.py'
+        mod = imp.load_compiled('testscript' + str(i+1), systempath.bundle_dir + '\\Scripts\\testscript1.pyc')
+        if(os.path.isfile(f)):
+            mod = imp.load_source('testscript' + str(i+1), f)
+        testscript.append(mod)
 except Exception as e:
-    print(e)
     log.loginfo.process_log(str(e))
-import copy
 
-def reload_scripts():
-    try:
-        for i in range(load.threadnum):
-            reload(testscript[i])
-        log.loginfo.process_log('reload test script ok')
-    except Exception as e:
-        log.loginfo.process_log(str(e))
 
 # 测试线程类
 class TestThread(QtCore.QThread):
@@ -62,7 +58,15 @@ class TestThread(QtCore.QThread):
         self.pause = False
         self.stop = False
         self.loop = False
+
         self.ts = testscript[self.threadid].TestFunc()
+
+    def reload_scripts(self):
+        try:
+            reload(testscript[self.threadid])
+            self.ts = testscript[self.threadid].TestFunc()
+        except Exception as e:
+            log.loginfo.process_log(str(e))
 
     def test_func(self):
         self.seq_end = False

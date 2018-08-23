@@ -38,6 +38,7 @@ class AutoMation():
             self.__class__.__first_init = False  # 只初始化一次
 
     def get_rt_info(self):    # 框架固有函数，可自定义，勿删除
+        time.sleep(0.1)
         rt_info = [0,0]
         return rt_info
 
@@ -98,6 +99,7 @@ class AutoMation():
         return True
 
     def read_io(self, index, length):  # index格式两位小数的字符串，length为整数   # 框架固有函数，可自定义，勿删除
+        time.sleep(0.1)
         data = [-1]*length
         return data
 
@@ -105,6 +107,7 @@ class AutoMation():
         return True
 
     def read_para(self, index, length):  # index为D寄存器开始位置, length为数据个数    # 框架固有函数，可自定义，勿删除
+        time.sleep(0.1)
         length = length*2   # 所有数据均为双子，所以长度乘以2
         data = [0] * int(length/2)
         return data

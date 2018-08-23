@@ -14,6 +14,7 @@ import threading
 import time
 import log
 import systempath
+import inihelper
 from PyQt5.uic import loadUi
 
 
@@ -37,6 +38,8 @@ class TcpTool(QDialog):
         self.ip = ''
         self.port = 0
         self.pb_send.setEnabled(False)
+        self.lan = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Language')
+        self.change_language(self.lan)
 
     def tcp_connect(self):
         self.skt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -91,3 +94,19 @@ class TcpTool(QDialog):
             log.loginfo.process_log('tcp close ok')
         except Exception as e:
             log.loginfo.process_log(str(e))
+
+    def English_ui(self):
+        self.lb_tcptitle.setText('TCP Debug Tool')
+        self.pb_tcpconnect.setText('Connect')
+        self.pb_send.setText('Send')
+
+    def Chinese_ui(self):
+        self.lb_tcptitle.setText('TCP调试工具')
+        self.pb_tcpconnect.setText('连接')
+        self.pb_send.setText('发送')
+
+    def change_language(self, lan):
+        if(lan == 'EN'):
+            self.English_ui()
+        else:
+            self.Chinese_ui()

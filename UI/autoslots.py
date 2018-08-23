@@ -13,6 +13,7 @@ import time
 import threading
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
+from PyQt5.QtGui import QColor, QBrush
 import systempath
 import log
 import autosetup
@@ -35,53 +36,59 @@ class AutoThread(QDialog,QtCore.QThread):
     refreshpara = QtCore.pyqtSignal(list)
     refreshio = QtCore.pyqtSignal(list)
     refreshaxis = QtCore.pyqtSignal(list)
-    # 实现一个单例类
+    # 实现一个单例类,只初始化一次
     _instance = None
+    __first_init = True
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super().__new__(cls, *args, **kwargs)
         return cls._instance
     def __init__(self, parent=None):
-        super(AutoThread, self).__init__(parent)
-        self.autoui = autosetup.AutoUI()
-        self.autoui.showsingnal.connect(self.show_event)
-        self.autoui.closesingnal.connect(self.close_event)
-        self.auto = automationscript.AutoMation()
-        self.io_name = []
-        self.io_on = []
-        self.io_off = []
-        self.io_value = []
-        self.io_index = []
-        self.in_en = []
-        self.io_value_en = []
-        self.refreshpara.connect(self.refresh_para)
-        self.refreshio.connect(self.refresh_io)
-        self.refreshaxis.connect(self.refresh_axis_ui)
-        init_iopath = systempath.bundle_dir + '/CSV Files/IO.csv'
-        self.read_io_config(0, True)
-        self.read_axis_config()
-        self.read_para_config(0, True)
-        self.initialize_motion_ui()
-        self.initialize_motion_state()
-        # 连接写参数信号与槽
-        self.autoui.cb_axis.currentIndexChanged.connect(self.auto.choose_axis)
-        self.autoui.tw_para.itemChanged.connect(self.set_para)
-        self.autoui.pb_jog1.pressed.connect(self.auto.jog_forward)
-        self.autoui.pb_jog1.released.connect(self.auto.jog_forward_stop)
-        self.autoui.pb_jog2.pressed.connect(self.auto.jog_backward)
-        self.autoui.pb_jog2.released.connect(self.auto.jog_backward_stop)
-        self.autoui.pb_absolute.clicked.connect(self.auto.absolute_run)
-        self.autoui.pb_relative.clicked.connect(self.auto.relative_run)
-        self.autoui.pb_home.clicked.connect(self.auto.axis_home)
-        self.autoui.pb_reset.clicked.connect(self.auto.axis_reset)
-        self.autoui.pb_axis_stop.clicked.connect(self.auto.axis_stop)
-        self.autoui.cb_io.currentIndexChanged.connect(self.choose_io_module)
-        self.autoui.cb_para.currentIndexChanged.connect(self.choose_para_module)
+        if (self.__class__.__first_init):  # 只初始化一次
+            self.__class__.__first_init = False  # 只初始化一次
+            super(AutoThread, self).__init__(parent)
+            self.stop_rt = False
+            self.autoui = autosetup.AutoUI()
+            self.autoui.showsingnal.connect(self.show_event)
+            self.autoui.closesingnal.connect(self.close_event)
+            self.auto = automationscript.AutoMation()
+            self.io_name = []
+            self.io_on = []
+            self.io_off = []
+            self.io_value = []
+            self.io_index = []
+            self.in_en = []
+            self.io_value_en = []
+            self.refreshpara.connect(self.refresh_para)
+            self.refreshio.connect(self.refresh_io)
+            self.refreshaxis.connect(self.refresh_axis_ui)
+            init_iopath = systempath.bundle_dir + '/CSV Files/IO.csv'
+            self.read_io_config(0, True)
+            self.read_axis_config()
+            self.read_para_config(0, True)
+            self.initialize_motion_ui()
+            self.initialize_motion_state()
+            # 连接写参数信号与槽
+            self.autoui.cb_axis.currentIndexChanged.connect(self.auto.choose_axis)
+            self.autoui.tw_para.itemChanged.connect(self.set_para)
+            self.autoui.pb_jog1.pressed.connect(self.auto.jog_forward)
+            self.autoui.pb_jog1.released.connect(self.auto.jog_forward_stop)
+            self.autoui.pb_jog2.pressed.connect(self.auto.jog_backward)
+            self.autoui.pb_jog2.released.connect(self.auto.jog_backward_stop)
+            self.autoui.pb_absolute.clicked.connect(self.auto.absolute_run)
+            self.autoui.pb_relative.clicked.connect(self.auto.relative_run)
+            self.autoui.pb_home.clicked.connect(self.auto.axis_home)
+            self.autoui.pb_reset.clicked.connect(self.auto.axis_reset)
+            self.autoui.pb_axis_stop.clicked.connect(self.auto.axis_stop)
+            self.autoui.cb_io.currentIndexChanged.connect(self.choose_io_module)
+            self.autoui.cb_para.currentIndexChanged.connect(self.choose_para_module)
 
     def show_event(self, show):
+        self.stop_rt = False
         self.auto.mannual_mode(True)
 
     def close_event(self, close):
+        self.stop_rt = True
         self.auto.mannual_mode(False)
 
     def choose_io_module(self, index):
@@ -210,32 +217,20 @@ class AutoThread(QDialog,QtCore.QThread):
 
     # 初始化IO表，从配置文件中读取信息
     def initialize_motion_ui(self):
-        self.autoui.tw_io.clearSpans()
-        self.autoui.tw_para.clearSpans()
-
-        self.autoui.tw_io.setMaximumWidth(self.autoui.width * 0.4)
-        # self.read_io_config(io_class_index)
         self.read_axis_config()
         # 初始化参数表格
-        self.autoui.tw_para.setColumnCount(3)
         self.autoui.tw_para.setRowCount(len(self.para_name_en))
-        self.autoui.tw_para.setHorizontalHeaderLabels(['Parameters', 'Read', 'Write'])
-        self.autoui.tw_para.horizontalHeader().setStretchLastSection(True)
-
-        self.autoui.tw_para.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
 
         i = 0
         for seq in self.para_name_en:
             newItem = QTableWidgetItem(seq)
+            newItem.setForeground(QBrush(QColor(0, 85, 255)))
             self.autoui.tw_para.setItem(i, 0, newItem)
             newItem.setFlags(QtCore.Qt.ItemIsEnabled)
             i = i + 1
 
         # 初始化io表格
-        self.autoui.tw_io.setColumnCount(2)
         self.autoui.tw_io.setRowCount(len(self.io_name_en))
-        self.autoui.tw_io.setHorizontalHeaderLabels(['IO', 'State'])
-        self.autoui.tw_io.horizontalHeader().setStretchLastSection(True)
         # 连接io表格信号与槽函数
         self.mapper = QtCore.QSignalMapper(self)
         i = 0
@@ -244,7 +239,9 @@ class AutoThread(QDialog,QtCore.QThread):
             self.MyCheck = QPushButton()
             self.MyCheck.setText(seq)
             self.autoui.tw_io.setCellWidget(i, 0, self.MyCheck)
-            self.MyCheck.setStyleSheet("QPushButton { background-color: rgb(255, 255, 127) }")
+            #self.MyCheck.setStyleSheet("QPushButton { background-color: rgb(85, 170, 255) }")
+            self.MyCheck.setStyleSheet("QPushButton { color: rgb(0, 85, 255) }")
+
             # newItem = QTableWidgetItem(self.io_desc[i])
             # self.tw_io.setItem(i - 1, 1, newItem)
             # 原始信号（表格中checkbox的鼠标点击信号）传递给map
@@ -302,6 +299,8 @@ class AutoThread(QDialog,QtCore.QThread):
     def refresh_rt_info(self):
         while(True):
             try:
+                if(self.stop_rt):
+                    break
                 axis_para = self.auto.get_rt_info()
                 self.refreshaxis.emit(axis_para)
                 self.io_value = self.auto.read_io(self.io_index[0], len(self.io_index))

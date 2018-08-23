@@ -7,12 +7,14 @@ description: 主程序
 Update date：2017.7.20
 version 1.0.0
 """
+import compilepy
 import sys
 import systempath
 import os
 import platform
 import multiprocessing
 from PyQt5.QtGui import QPalette, QColor, QBrush
+from PyQt5.QtCore import QCoreApplication
 sys.path.append(systempath.bundle_dir + '/Module')
 sys.path.append(systempath.bundle_dir + '/Scripts')
 sys.path.append(systempath.bundle_dir + '/UI')
@@ -32,7 +34,6 @@ import autoslots
 from scansnsetup import *
 import mainsetup
 import testthread
-import compilepy
 import visionslots
 import visionsetup
 
@@ -41,7 +42,6 @@ class TestSeq(QMainWindow):
     def __init__(self, parent=None):
         super(TestSeq, self).__init__(parent)
         # 实例化tcp，串口，zmq调试工具类
-
         self.mainui = mainsetup.MainUI()
         testthread.init_thread()
         self.mains = MainSlots()
@@ -74,7 +74,7 @@ class TestSeq(QMainWindow):
         self.mainui.actionOpen_CSV.triggered.connect(self.open_sequence_thread)
         self.mainui.actionOpen_Result.triggered.connect(self.open_result_thread)
         self.mainui.actionOpen_Log.triggered.connect(self.open_log_thread)
-        self.mainui.actionClose_System.triggered.connect(self.close)
+        self.mainui.actionClose_System.triggered.connect(QCoreApplication.instance().quit)
         self.mainui.actionSN_Window.triggered.connect(self.sn_window)
         self.mainui.actionVision_Window.triggered.connect(self.vision_window)
         # 工具栏信号连接
@@ -149,7 +149,7 @@ class TestSeq(QMainWindow):
     def initialize_tree(self, tree, items, levels):
         try:
             tree.setColumnCount(5)
-            tree.setHeaderLabels(['TestItems', 'Test Time', 'TestData', 'TestResult', ' Details'])
+            # tree.setHeaderLabels(['TestItems', 'Test Time', 'TestData', 'TestResult', ' Details'])
             # 设置行高为25
             tree.setStyleSheet("QTreeWidget::item{height:%dpx}"%int(self.height*0.03))
             header = tree.header()
@@ -425,16 +425,24 @@ class TestSeq(QMainWindow):
 
     # 重新加载Sequence
     def load_sequence(self):
-        for i in range(load.threadnum):
-            log.loginfo.process_log('Reload sequence')
-            testthread.t_load[i].load_seq()
-            self.testtree[i].clear()
-            self.root[i] = self.initialize_tree(self.mainui.testtree[i], testthread.t_load[i].seq_col1, testthread.t_load[i].seq_col7)
+        try:
+            for i in range(load.threadnum):
+                log.loginfo.process_log('Reload sequence')
+                testthread.t_load[i].load_seq()
+                self.mainui.testtree[i].clear()
+                self.root[i] = self.initialize_tree(self.mainui.testtree[i], testthread.t_load[i].seq_col1, testthread.t_load[i].seq_col7)
+        except Exception as e:
+            print(e)
 
     def reload_scripts(self):
-        log.loginfo.process_log('Reload scripts')
-        testthread.reload_scripts()
-        autoslots.reload_scripts()
+        try:
+            log.loginfo.process_log('Reload scripts')
+            #testthread.reload_scripts()
+            for i in range(load.threadnum):
+                testthread.t_thread[i].reload_scripts()
+            autoslots.reload_scripts()
+        except Exception as e:
+            print(e)
 
     # 切换用户
     def change_user(self):
@@ -545,7 +553,7 @@ class TestSeq(QMainWindow):
             subprocess.call(["open", filename[0]])
 
     def authority(self):
-        if(self.lb_main_user.text() == 'Administrator'):
+        if(self.mainui.lb_main_user.text() == 'Administrator'):
             self.mainui.actionPause.setVisible(True)
             self.mainui.actionContinue.setVisible(True)
             self.mainui.actionEdit.setVisible(True)
@@ -584,17 +592,17 @@ if __name__ == '__main__':
     multiprocessing.freeze_support()
     #print(QStyleFactory.keys())
     if(platform.system() == "Windows"):
-        QApplication.setStyle(QStyleFactory.create("Fusion"))   #Plastique
+        QApplication.setStyle(QStyleFactory.create("Plastique"))   #Plastique
         font = QtGui.QFont()
         font.setPointSize(10);
         font.setFamily(("arial"))
         QApplication.setFont(font)
 
-    scriptpath = systempath.bundle_dir+'/Scripts/testscript1.py'
+    scriptpath = systempath.bundle_dir+'/Scripts/testscript1.pyc'
     app = QApplication(sys.argv)
     app.setStyleSheet("QTabWidget { background-color: rgb(207, 207, 207) }")
-    if(not os.path.exists(scriptpath)):
-        QMessageBox.information(None, ("Warning!"), ("Script Error!"), QMessageBox.StandardButton(QMessageBox.Ok))
+    if(False):
+        QMessageBox.information(None, ("Warning!"), ("Script Load Error!"), QMessageBox.StandardButton(QMessageBox.Ok))
     else:
         global user
         user = UserManager()

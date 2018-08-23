@@ -17,9 +17,9 @@ import threading
 import systempath
 import visionsetup
 import sys
-sys.path.append(systempath.bundle_dir + '/Vision')
-clr.FindAssembly(systempath.bundle_dir + '/Vision/BaumerDll.dll')  # 加载c#dll文件
-from BaumerDll import *
+import mainsetup
+clr.FindAssembly('BaumerSDKV2.dll')  # 加载c#dll文件
+from BaumerSDKV2 import *
 
 
 class Vision():
@@ -35,35 +35,45 @@ class Vision():
         if (self.__class__.__first_init):  # 只初始化一次
             self.visionui = visionsetup.VisionUI()
             self.visionui.pb_live.setText('Live')
+            self.baumer = BaumerSDKV2()
+            self.mainui = mainsetup.MainUI()
+            self.mainui.actsnap.triggered.connect(self.read_image)
             self.__class__.__first_init = False  # 只初始化一次
 
+    def read_image(self):
+        try:
+            win = self.init_image_window(self.mainui.lb_image)
+            self.baumer.read_image('C:\\Project\\Image\\123.bmp')
+            self.baumer.disp_image(win)
+        except Exception as e:
+            print(e)
+
     def init_image_window(self, image_win):
-        self.baumer.init_windowH(int(image_win.winId()), 0, 0, image_win.width(),
+        ret = self.baumer.init_window(int(image_win.winId()), 0, 0, image_win.width(),
                                  image_win.height())
+        return ret
 
     def connect_camera(self):
-        self.baumer = BaumerH()
-        ret = self.baumer.open_cameraH()
+        ret = self.baumer.Initialize()
         if(ret==True):
             print('connect ok')
+        self.cam = list(self.baumer.init_camera())
+        print(self.cam)
         return ret
 
     def get_extime(self):
-        ret = self.baumer.get_extimeH()
+        ret = self.baumer.get_extime()
         return ret
 
     def set_extime(self, extime):
-        ret = self.baumer.set_extimeH(extime)
+        ret = self.baumer.set_extime(extime)
         return float(ret)
-
-    def get_model(self):
-        ret = self.baumer.get_device_modelH()
-        return str(ret)
 
     def capture(self):
         try:
-            ret = self.baumer.snapH()
-            self.baumer.disp_imageH()
+            self.baumer.set_camera('0680113115')
+            ret = self.baumer.snap()
+            self.baumer.disp_image()
         except Exception as e:
             print(e)
 
@@ -80,7 +90,7 @@ class Vision():
 
     def live_image(self):
         while (True):
-            ret = self.baumer.snapH()
-            self.baumer.disp_imageH()
+            ret = self.baumer.snap()
+            self.baumer.disp_image()
             if(self.stop):
                 break

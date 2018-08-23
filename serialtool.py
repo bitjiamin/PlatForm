@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import QDialog
 import serial
 import serial.tools.list_ports
 import systempath
+import inihelper
 import threading
 from PyQt5.QtWidgets import QDesktopWidget
 import log
@@ -20,11 +21,7 @@ from PyQt5.uic import loadUi
 class SerialTool(QDialog):
     def __init__(self, parent = None):
         super(SerialTool, self).__init__(parent)
-
-        # self.setupUi(self)
-
         loadUi(systempath.bundle_dir + '/UI/serialtool.ui', self)  # 看到没，瞪大眼睛看
-
         self.screen = QDesktopWidget().screenGeometry()
         self.width = self.screen.width()
         self.height = self.screen.height()
@@ -35,6 +32,9 @@ class SerialTool(QDialog):
         self.pb_serialcon.clicked.connect(self.serial_connect)
         self.pb_serialsend.clicked.connect(self.serial_send)
         self.com = serial.Serial()
+
+        self.lan = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Language')
+        self.change_language(self.lan)
 
     def list_serial_port(self):
         self.cb_serialname.clear()
@@ -108,3 +108,18 @@ class SerialTool(QDialog):
         except Exception as e:
             log.loginfo.process_log(str(e))
 
+    def English_ui(self):
+        self.lb_serialtitle.setText('Serial Debug Tool')
+        self.pb_serialcon.setText('Connect')
+        self.pb_serialsend.setText('Send')
+
+    def Chinese_ui(self):
+        self.lb_serialtitle.setText('串口调试工具')
+        self.pb_serialcon.setText('连接')
+        self.pb_serialsend.setText('发送')
+
+    def change_language(self, lan):
+        if(lan == 'EN'):
+            self.English_ui()
+        else:
+            self.Chinese_ui()

@@ -15,6 +15,7 @@ import time
 import base64
 import log
 import systempath
+import inihelper
 from PyQt5.uic import loadUi
 
 class UserManager(QDialog):
@@ -31,18 +32,13 @@ class UserManager(QDialog):
         self.width = self.screen.width()
         self.height = self.screen.height()
         self.setFixedSize(self.width*0.3,self.height * 0.28)
-        self.lb_login.setMaximumHeight(self.height * 0.16)
-        self.lb_login.setMaximumWidth(self.width * 0.3)
-        self.lb_image.setMaximumHeight(self.height * 0.08)
-        self.lb_layout.setMaximumHeight(self.height * 0.03)
-        self.lb_image.setMaximumWidth(self.width * 0.06)
-        self.pb_login.setMaximumWidth(self.width * 0.1)
-        self.pb_exit.setMaximumWidth(self.width * 0.1)
         self.le_pwd.setFocus()
         pixMap = QPixmap(systempath.bundle_dir + '/Resource/user.png')
         self.lb_image.setPixmap(pixMap)
         log.loginfo.init_log()
         self.le_pwd.setText('')
+        self.lan = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Language')
+        self.change_language(self.lan)
 
     def exit(self):
         self.accept()
@@ -72,7 +68,6 @@ class UserManager(QDialog):
         f.writelines(users)
         f.close()
 
-
     def closeEvent(self, event):
         UserManager.loginok = False
         self.accept()
@@ -80,34 +75,63 @@ class UserManager(QDialog):
     def userchange(self):
         self.le_pwd.setText('')
         if(self.cb_user.currentIndex()==0):
-            self.lb_pwd.setText('PassWord:')
+            if(self.lan=='EN'):
+                self.lb_pwd.setText('Password:')
+            else:
+                self.lb_pwd.setText('密码:')
             self.le_pwd.setEchoMode(2)
         else:
-            self.lb_pwd.setText('OperatorID:')
+            if (self.lan == 'EN'):
+                self.lb_pwd.setText('OperatorID:')
+            else:
+                self.lb_pwd.setText('操作员ID:')
             self.le_pwd.setEchoMode(0)
 
     def userlogin(self):
-        login_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-        pwd = self.get_password()
-        if((self.cb_user.currentIndex()==0) and (self.le_pwd.text() == pwd)):
-            log.loginfo.process_log('Administrator login')
-            UserManager.username = 'Administrator'
-            self.loginsignal.emit(['Administrator'])
-            self.save_user('Administrator', login_time)
-            UserManager.loginok = True
-            self.accept()
-        elif(self.cb_user.currentIndex() == 1):
-            if(self.le_pwd.text() == ''):
-                QMessageBox.information(self, ("Warning!"), ("Invalid operator!"),
-                                        QMessageBox.StandardButton(QMessageBox.Ok))
-            else:
-                log.loginfo.process_log('Operator ' + self.le_pwd.text() + ' login')
-                UserManager.username = self.le_pwd.text()
-                self.loginsignal.emit([self.le_pwd.text()])
-                self.save_user(UserManager.username, login_time)
+        try:
+            login_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+            pwd = self.get_password()
+            if((self.cb_user.currentIndex()==0) and (self.le_pwd.text() == pwd)):
+                log.loginfo.process_log('Administrator login')
+                UserManager.username = 'Administrator'
+                self.loginsignal.emit(['Administrator'])
+                self.save_user('Administrator', login_time)
                 UserManager.loginok = True
                 self.accept()
+            elif(self.cb_user.currentIndex() == 1):
+                if(self.le_pwd.text() == ''):
+                    QMessageBox.information(self, ("Warning!"), ("Invalid operator!"),
+                                            QMessageBox.StandardButton(QMessageBox.Ok))
+                else:
+                    log.loginfo.process_log('Operator ' + self.le_pwd.text() + ' login')
+                    UserManager.username = self.le_pwd.text()
+                    self.loginsignal.emit([self.le_pwd.text()])
+                    self.save_user(UserManager.username, login_time)
+                    UserManager.loginok = True
+                    self.accept()
+            else:
+                # 除了information还有warning、about等
+                QMessageBox.information(self, ("Warning!"), ("Password Error!"), QMessageBox.StandardButton(QMessageBox.Ok))
+                log.loginfo.process_log('error password')
+        except Exception as e:
+            print(e)
+
+    def English_ui(self):
+        self.lb_login.setText('Login System')
+        self.lb_user.setText('Username:')
+        self.lb_pwd.setText('Password:')
+        self.pb_login.setText('Login')
+        self.pb_exit.setText('Exit')
+
+    def Chinese_ui(self):
+        self.lb_login.setText('登录系统')
+        self.lb_user.setText('用户名:')
+        self.lb_pwd.setText('密码:')
+        self.pb_login.setText('登录')
+        self.pb_exit.setText('退出')
+
+    def change_language(self, lan):
+        if(lan == 'EN'):
+            self.English_ui()
         else:
-            # 除了information还有warning、about等
-            QMessageBox.information(self, ("Warning!"), ("Password Error!"), QMessageBox.StandardButton(QMessageBox.Ok))
-            log.loginfo.process_log('error password')
+            self.Chinese_ui()

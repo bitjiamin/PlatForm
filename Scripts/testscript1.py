@@ -11,12 +11,14 @@ version 1.0.0
 import time
 import log
 import zmq
+#import visionscript
 
 
 class TestFunc():
     def __init__(self):
         try:
             self.zmq_open()
+            #self.vision = visionscript.Vision()
         except Exception as e:
             log.loginfo.process_log('testscript1 init:' + str(e))
 
@@ -49,17 +51,17 @@ class TestFunc():
         self.socket.close()
 
     def pretest(self):
-        time.sleep(0.1)
+        time.sleep(0.2)
         ret = [0,  'pretest']
         return ret
 
     def function1(self):
-        time.sleep(0.1)
+        time.sleep(0.2)
         ret = [0,  'step1']
         return ret
 
     def function2(self):
-        time.sleep(0.1)
+        time.sleep(0.2)
         ret = [0, 'step2']
         return ret
 

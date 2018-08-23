@@ -13,6 +13,7 @@ from PyQt5.uic import loadUi
 import systempath
 import base64
 import log
+import inihelper
 
 class UserManage(QDialog):
     def __init__(self, parent=None):
@@ -25,6 +26,8 @@ class UserManage(QDialog):
         self.le_new.setEchoMode(2)
         self.le_old.setFocus()
         self.setWindowTitle('User Management')
+        self.lan = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Language')
+        self.change_language(self.lan)
 
     def change_password(self):
         old_pw = self.get_password()
@@ -99,3 +102,23 @@ class UserManage(QDialog):
             f.writelines(data)
             f.close()
             log.loginfo.process_log('delete user: ' + del_user)
+
+    def English_ui(self):
+        self.lb_usertitle.setText('User Management')
+        self.lb_old.setText('Old Password:')
+        self.lb_new.setText('New Password:')
+        self.pb_savepw.setText('Save Password')
+        self.pb_deluser.setText('Delete')
+
+    def Chinese_ui(self):
+        self.lb_usertitle.setText('用户管理')
+        self.lb_old.setText('旧密码:')
+        self.lb_new.setText('新密码:')
+        self.pb_savepw.setText('保存密码')
+        self.pb_deluser.setText('删除')
+
+    def change_language(self, lan):
+        if (lan == 'EN'):
+            self.English_ui()
+        else:
+            self.Chinese_ui()
