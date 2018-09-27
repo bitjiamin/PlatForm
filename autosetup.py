@@ -8,10 +8,11 @@ Update date：2017.7.20
 version 1.0.0
 """
 
-import sys
+
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.uic import loadUi
+from PyQt5 import QtGui
 import log
 import inihelper
 import systempath
@@ -34,6 +35,12 @@ class AutoUI(QDialog, QtCore.QThread):
             self.__class__.__first_init = False  # 只初始化一次
             super(AutoUI, self).__init__(parent)
             loadUi(systempath.bundle_dir + '/UI/automation.ui', self)  # 看到没，瞪大眼睛看
+
+            # 设置窗口图标
+            import ctypes
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
+            self.setWindowIcon(QtGui.QIcon(systempath.bundle_dir + '/Resource/auto.ico'))
+
             # 获取屏幕分辨率
             self.screen = QDesktopWidget().screenGeometry()
             self.width = self.screen.width()
@@ -88,6 +95,7 @@ class AutoUI(QDialog, QtCore.QThread):
         self.tw_io.setHorizontalHeaderLabels(['IO', 'State'])
         self.lb_io.setText('IO Module:')
         self.lb_para.setText('Parameter Module:')
+        self.setWindowTitle('Automation')
 
     def Chinese_ui(self):
         # 序列编辑
@@ -112,6 +120,7 @@ class AutoUI(QDialog, QtCore.QThread):
         self.tw_io.setHorizontalHeaderLabels(['IO', '状态'])
         self.lb_io.setText('IO模块:')
         self.lb_para.setText('参数模块:')
+        self.setWindowTitle('运动控制')
 
     def change_language(self, lan):
         if(lan == 'EN'):

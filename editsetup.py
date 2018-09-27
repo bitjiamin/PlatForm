@@ -6,6 +6,7 @@ import systempath
 import log
 import inihelper
 import testthread
+from PyQt5 import QtGui
 
 
 global editui
@@ -24,6 +25,12 @@ class EditUI(QDialog):
             super(EditUI, self).__init__(parent)
             # self.setupUi(self)
             loadUi(systempath.bundle_dir + '/UI/editsequence.ui', self)  # 看到没，瞪大眼睛看
+
+            # 设置窗口图标
+            import ctypes
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
+            self.setWindowIcon(QtGui.QIcon(systempath.bundle_dir + '/Resource/edit.ico'))
+
             # 获取屏幕分辨率
             self.screen = QDesktopWidget().screenGeometry()
             self.width = self.screen.width()
@@ -99,6 +106,7 @@ class EditUI(QDialog):
         self.pb_insertrow.setText('Insert Row')
         self.pb_delrow.setText('Delete Row')
         self.pb_saveseq.setText('Save')
+        self.setWindowTitle('Sequence')
         self.tableseq.setHorizontalHeaderLabels(
             ['TestItem', 'Function', 'Mode', 'Low Limit', 'Up Limit', 'Next Step', 'Level'])
 
@@ -108,6 +116,7 @@ class EditUI(QDialog):
         self.pb_insertrow.setText('插入行')
         self.pb_delrow.setText('删除选定行')
         self.pb_saveseq.setText('保存序列')
+        self.setWindowTitle('序列编辑')
         self.tableseq.setHorizontalHeaderLabels(['测试项', '函数', '模式', '下限', '上限', '失败后跳转', '等级'])
 
     def change_language(self, lan):

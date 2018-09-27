@@ -36,7 +36,7 @@ class Log(QtCore.QObject):
         self.ch.setLevel(logging.DEBUG)
 
         # 定义handler的输出格式
-        #formatter = logging.Formatter('%(asctime)s - %(filename)s:%(lineno)s - %(name)s - %(message)s')
+        # formatter = logging.Formatter('%(asctime)s - %(filename)s:%(lineno)s - %(name)s - %(message)s')
         formatter = logging.Formatter('%(asctime)s - %(message)s')
 
         self.fh.setFormatter(formatter)
@@ -47,6 +47,11 @@ class Log(QtCore.QObject):
         self.logger.addHandler(self.ch)
 
     def process_log(self, msg):
+        self.logger.debug(msg)
+        st = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        self.refreshlog.emit(st + ' - ' + msg)
+
+    def process_err(self, msg):
         self.logger.debug(msg)
         st = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         self.refreshlog.emit(st + ' - ' + msg)

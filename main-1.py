@@ -36,14 +36,11 @@ from scansnsetup import *
 import mainsetup
 import testthread
 import load
-import globaldata
 
 
 class TestSeq(QMainWindow):
     def __init__(self, parent=None):
         super(TestSeq, self).__init__(parent)
-        globaldata.GlobalSingnal()
-        globaldata.init_singnal()
         # 实例化tcp，串口，zmq调试工具类
         self.mainui = mainsetup.MainUI()
         # 实例化log类
@@ -59,6 +56,7 @@ class TestSeq(QMainWindow):
         self.serialtool = serialtool.SerialTool()
         self.zmqtool = zmqtool.ZmqTool()
         self.usertool = UserManage()
+
         # 获取屏幕分辨率
         self.screen = QDesktopWidget().screenGeometry()
         self.width = self.screen.width()
@@ -107,12 +105,12 @@ class TestSeq(QMainWindow):
             self.root.append([])
         # 连接子进程的信号和槽函数
         for i in range(load.threadnum):
-            globaldata.singnal.runsingnal[i].connect(testthread.t_thread[i].get_step)
-            globaldata.singnal.runsingnal[i].connect(self.remote_test)
             testthread.t_thread[i].finishSignal.connect(self.test_end)
             testthread.t_thread[i].refresh.connect(self.refresh_ui)
             testthread.t_thread[i].refreshloop.connect(self.loop_refresh)
             self.mode.append(testthread.t_load[i].seq_col3)
+            self.debug = False
+
         # 加载sequence
         # testthread.t_load[0].load_seq()
         # log.loginfo.process_log('Load sequence')
@@ -186,30 +184,39 @@ class TestSeq(QMainWindow):
                     self.mainui.pe.setColor(QPalette.Window, QColor(255, 255, 0))  # 设置背景颜色
                     #self.myeditbar.setText(str(testthread.t_thread[0].looptime))
 
-    def thread_start(self, threadid):
-        try:
-            log.loginfo.process_log('Start test')
-            testthread.t_load[threadid].seq_col3 = self.mode[threadid]
-            testthread.t_thread[threadid].stop = False
-            self.mainui.actionStart.setDisabled(True)
-            # self.mainui.myloopbar.setDisabled(True)
-            # self.mainui.myeditbar.setDisabled(True)
-            # 开始执行 run() 函数里的内容,只有测试结束了的线程才能开始(改成单步运行后序列结束前可以重复start)
-            if(testthread.t_thread[threadid].seq_end):
-                self.clear_seq(self.root[threadid],self.mainui.bar[threadid])
-            if(testthread.t_thread[threadid].step_end):
-                testthread.t_thread[threadid].start()
-                self.set_state('Testing', threadid)
-                self.mainui.pe.setColor(QPalette.Window, QColor(255, 255, 0))  # 设置背景颜色
-        except Exception as e:
-            log.loginfo.process_log('main:test_start:' + str(e))
-
     # 开始测试
     def test_start(self):
         try:
             log.loginfo.process_log('Start test')
             for i in range(load.threadnum):
-                self.thread_start(i)
+                if (self.debug):
+                    try:
+                        title = []
+                        items = self.mainui.testtree[i].selectedItems()
+                        for item in items:
+                            title.append(item.text(0))
+                        j = 0
+                        for data in testthread.t_load[i].seq_col1:
+                            if(data in title or j == 1 or j == len(testthread.t_load[i].seq_col1)-1):
+                                testthread.t_load[i].seq_col3[j] = 'test'
+                            else:
+                                testthread.t_load[i].seq_col3[j] = 'skip'
+                            j = j + 1
+                    except Exception as e:
+                        log.loginfo.process_log('main:test_start:' + str(e))
+                else:
+                    testthread.t_load[i].seq_col3 = self.mode[i]
+
+                testthread.t_thread[i].stop = False
+                self.mainui.actionStart.setDisabled(True)
+                # self.mainui.myloopbar.setDisabled(True)
+                # self.mainui.myeditbar.setDisabled(True)
+                # 开始执行 run() 函数里的内容,只有测试结束了的线程才能开始
+                if(testthread.t_thread[i].seq_end or True):
+                    self.clear_seq(self.root[i],self.mainui.bar[i])
+                    testthread.t_thread[i].start()
+                    self.set_state('Testing', i)
+                    self.mainui.pe.setColor(QPalette.Window, QColor(255, 255, 0))  # 设置背景颜色
         except Exception as e:
             log.loginfo.process_log('main:test_start:' + str(e))
 
@@ -298,67 +305,64 @@ class TestSeq(QMainWindow):
 
     # 测试过程中刷新UI，线程1
     def refresh_ui(self,ls):
-        try:
-            thread_id = ls[5]
-            # 每个测试项测试结果个数
-            l_result = len(ls[2]) - 1
-            # 有子项时显示子项
-            if(l_result > 0):
-                for i in range(l_result):
-                    self.root[thread_id][ls[0]].child(i).setText(2, str(ls[2][i+1]))
-                    self.root[thread_id][ls[0]].child(i).setText(3, ls[3][i+1])
+        thread_id = ls[5]
+        # 每个测试项测试结果个数
+        l_result = len(ls[2]) - 1
+        # 有子项时显示子项
+        if(l_result > 0):
+            for i in range(l_result):
+                self.root[thread_id][ls[0]].child(i).setText(2, str(ls[2][i+1]))
+                self.root[thread_id][ls[0]].child(i).setText(3, ls[3][i+1])
 
-            # 将结果列表的括号去掉后再显示
-            ls[4] = str(ls[4])[1:len(str(ls[4])) - 1]
-            # 显示其他信息
-            for i in range(1, 5):
-                if (i == 0 or i == 1 or i == 4 or i == 5):
-                    # 将结果列表的括号去掉后再显示
-                    self.root[thread_id][ls[0]].setText(i, str(ls[i]))
-                if (i == 2):
-                    if(l_result>1):
+        # 将结果列表的括号去掉后再显示
+        ls[4] = str(ls[4])[1:len(str(ls[4])) - 1]
+        # 显示其他信息
+        for i in range(1, 5):
+            if (i == 0 or i == 1 or i == 4 or i == 5):
+                # 将结果列表的括号去掉后再显示
+                self.root[thread_id][ls[0]].setText(i, str(ls[i]))
+            if (i == 2):
+                if(l_result>1):
+                    self.root[thread_id][ls[0]].setText(i, str(ls[i][0]))
+                else:
+                    try:
                         self.root[thread_id][ls[0]].setText(i, str(ls[i][0]))
-                    else:
-                        try:
-                            self.root[thread_id][ls[0]].setText(i, str(ls[i][0]))
-                        except Exception as e:
+                    except Exception as e:
+                        pass
+            if(i == 3):
+                if('Fail' in ls[i]):
+                    self.root[thread_id][ls[0]].setText(i, 'Fail')
+                elif(ls[i][0]== 'Skip'):
+                    self.root[thread_id][ls[0]].setText(i, 'Skip')
+                elif('Testing' in ls[i]):
+                    self.root[thread_id][ls[0]].setText(i, 'Testing')
+                else:
+                    self.root[thread_id][ls[0]].setText(i, 'Pass')
+
+        if ls[3] == "Testing":
+            for i in range(0,5):
+                self.root[thread_id][ls[0]].setBackground(i, QBrush(QColor(0,255,100)))    # 设置树形控件的item为绿色
+                self.mainui.testtree[thread_id].scrollToItem(self.root[thread_id][ls[0]])  # 2018.5.5更新，树形控件自动滚动到当前测试的行
+        elif "Fail" in ls[3]:
+            self.mainui.bar[thread_id].setValue(ls[0])
+            for i in range(0, 5):
+                self.root[thread_id][ls[0]].setBackground(i, QBrush(QColor(255, 0, 0)))
+
+            if(len(ls[3]) > 1):      # 将fail的子项标红
+                for j in range(len(ls[3])-1):
+                    if(ls[3][j+1] == 'Fail'):
+                        for i in range(0, 5):
+                            self.root[thread_id][ls[0]].child(j).setBackground(i, QBrush(QColor(255, 0, 0)))
                             pass
-                if(i == 3):
-                    if('Fail' in ls[i]):
-                        self.root[thread_id][ls[0]].setText(i, 'Fail')
-                    elif(ls[i][0]== 'Skip'):
-                        self.root[thread_id][ls[0]].setText(i, 'Skip')
-                    elif('Testing' in ls[i]):
-                        self.root[thread_id][ls[0]].setText(i, 'Testing')
-                    else:
-                        self.root[thread_id][ls[0]].setText(i, 'Pass')
 
-            if ls[3] == "Testing":
-                for i in range(0,5):
-                    self.root[thread_id][ls[0]].setBackground(i, QBrush(QColor(0,255,100)))    # 设置树形控件的item为绿色
-                    self.mainui.testtree[thread_id].scrollToItem(self.root[thread_id][ls[0]])  # 2018.5.5更新，树形控件自动滚动到当前测试的行
-            elif "Fail" in ls[3]:
-                self.mainui.bar[thread_id].setValue(ls[0])
-                for i in range(0, 5):
-                    self.root[thread_id][ls[0]].setBackground(i, QBrush(QColor(255, 0, 0)))
-
-                if(len(ls[3]) > 1):      # 将fail的子项标红
-                    for j in range(len(ls[3])-1):
-                        if(ls[3][j+1] == 'Fail'):
-                            for i in range(0, 5):
-                                self.root[thread_id][ls[0]].child(j).setBackground(i, QBrush(QColor(255, 0, 0)))
-                                pass
-
-            elif ls[3] == 'Pause':
-                self.mainui.bar[thread_id].setValue(ls[0])
-                for i in range(0, 5):
-                    self.root[thread_id][ls[0]].setBackground(i, QBrush(QColor(255, 255, 0)))
-            else:
-                self.mainui.bar[thread_id].setValue(ls[0])
-                for i in range(0,5):
-                    self.root[thread_id][ls[0]].setBackground(i, QBrush(QColor(255,255,255)))
-        except Exception as e:
-            print(e)
+        elif ls[3] == 'Pause':
+            self.mainui.bar[thread_id].setValue(ls[0])
+            for i in range(0, 5):
+                self.root[thread_id][ls[0]].setBackground(i, QBrush(QColor(255, 255, 0)))
+        else:
+            self.mainui.bar[thread_id].setValue(ls[0])
+            for i in range(0,5):
+                self.root[thread_id][ls[0]].setBackground(i, QBrush(QColor(255,255,255)))
 
 
     def set_state(self, result, thread_id):
@@ -498,27 +502,16 @@ class TestSeq(QMainWindow):
 
     # 解析zmq server收到的内容
     def recv_server(self, ls):
-        if(ls[0][0:5] == 'Start'):
+        if(ls[0] == 'Start'):
+            self.debug = False
+            self.test_start()
+        if (ls[0] == 'Debug'):
+            self.debug = True
             self.test_start()
         if (ls[0] == 'Stop'):
             self.test_break()
         if (ls[0] == 'Pause'):
             self.test_pause()
-        if (ls[0] == 'Continue'):
-            self.continue_tool()
-
-    def remote_test(self, ls):
-        try:
-            if (ls[1][0:5] == 'Start'):
-                self.thread_start(ls[0])
-            if (ls[1] == 'Stop'):
-                self.test_break()
-            if (ls[1] == 'Pause'):
-                self.test_pause()
-            if (ls[1] == 'Continue'):
-                self.continue_tool()
-        except Exception as e:
-            print(e)
 
     def open_sequence_thread(self):
         thread = threading.Thread(target=self.open_sequence)

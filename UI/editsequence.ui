@@ -70,7 +70,8 @@
        </sizepolicy>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(85, 170, 255);</string>
+       <string notr="true">border-color: rgb(85, 170, 255);
+background-color: rgb(85, 170, 255);</string>
       </property>
       <property name="text">
        <string>Insert Row</string>
@@ -84,7 +85,8 @@
        </sizepolicy>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(255, 0, 0);</string>
+       <string notr="true">border-color:  rgb(255, 0, 0);
+background-color: rgb(255, 0, 0);</string>
       </property>
       <property name="text">
        <string>Delete Row</string>
@@ -103,7 +105,8 @@
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(85, 255, 127);</string>
+       <string notr="true">border-color: rgb(85, 255, 127);
+background-color: rgb(85, 255, 127);</string>
       </property>
       <property name="text">
        <string>Save</string>

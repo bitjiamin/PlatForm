@@ -24,7 +24,6 @@ class SNUI(Ui_SN, QDialog):
 
     def input_sn(self):
         self.mainui = mainsetup.MainUI()
-
         globaldata.sn = self.le_sn.text()
         self.close()
 

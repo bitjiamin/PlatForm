@@ -9,6 +9,7 @@ import systempath
 import log
 import inihelper
 import load
+import globaldata
 
 
 class MainUI(QMainWindow):
@@ -24,11 +25,17 @@ class MainUI(QMainWindow):
             self.__class__.__first_init = False  # 只初始化一次
             super(MainUI, self).__init__(parent)
             loadUi(systempath.bundle_dir + '/UI/mainwindow.ui', self)  # 看到没，瞪大眼睛看
-            log.loginfo.process_log('Initialize UI')
+            log.loginfo.process_log('Initialize main ui')
             # 获取屏幕分辨率
             self.screen = QDesktopWidget().screenGeometry()
             self.width = self.screen.width()
             self.height = self.screen.height()
+
+            # 设置窗口图标
+            import ctypes
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
+            self.setWindowIcon(QtGui.QIcon(systempath.bundle_dir + '/Resource/cyg.ico'))
+
             # 添加IA Logo
             pixMap = QPixmap(systempath.bundle_dir + '/Resource/IA.png')
             self.lb_ia.setMaximumWidth(self.width * 0.12)
@@ -37,8 +44,8 @@ class MainUI(QMainWindow):
             self.lb_ia.setPixmap(pixMap)
 
             # 读取标题与版本号
-
             self.lb_title.setText(inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Title'))
+            self.setWindowTitle(inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Title'))
             self.lb_ver.setText(inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Version'))
             self.pe = QPalette()
             self.pe2 = QPalette()
@@ -64,29 +71,101 @@ class MainUI(QMainWindow):
                 self.y_cnt.append(0)
 
             # 初始化各界面
+            self.lan = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Language')
             self.init_main_ui()
             self.init_systeminfo()
             self.init_toolbar_ui()
             self.disable_window()
 
-            #添加右键菜单
-            self.lb_image.setContextMenuPolicy(3)
-            self.lb_image.customContextMenuRequested.connect(self.showContextMenu)
-            self.cmenu = QMenu(self)
+            #添加右键菜单image1
+            self.lb_image1.setContextMenuPolicy(3)
+            self.lb_image1.customContextMenuRequested.connect(self.showContextMenu1)
+            self.cmenu1 = QMenu(self)
             if(self.lan=='EN'):
-                self.actsnap = self.cmenu.addAction('Shot')
-                self.actstart = self.cmenu.addAction('Live')
-                self.actstop = self.cmenu.addAction('Stop')
-                self.actsave = self.cmenu.addAction('Save')
+                self.actsnap1 = self.cmenu1.addAction('Shot')
+                self.actstart1 = self.cmenu1.addAction('Live')
+                self.actstop1 = self.cmenu1.addAction('Stop')
+                self.actsave1 = self.cmenu1.addAction('Save')
             else:
-                self.actsnap = self.cmenu.addAction('抓拍')
-                self.actstart = self.cmenu.addAction('实时拍照')
-                self.actstop = self.cmenu.addAction('停止')
-                self.actsave = self.cmenu.addAction('保存图片')
+                self.actsnap1 = self.cmenu1.addAction('抓拍')
+                self.actstart1 = self.cmenu1.addAction('实时拍照')
+                self.actstop1 = self.cmenu1.addAction('停止')
+                self.actsave1 = self.cmenu1.addAction('保存图片')
 
-    def showContextMenu(self, pos):
-        self.cmenu.move(QtGui.QCursor.pos())
-        self.cmenu.show()
+            # 添加右键菜单image2
+            self.lb_image2.setContextMenuPolicy(3)
+            self.lb_image2.customContextMenuRequested.connect(self.showContextMenu2)
+            self.cmenu2 = QMenu(self)
+            if (self.lan == 'EN'):
+                self.actsnap2 = self.cmenu2.addAction('Shot')
+                self.actstart2 = self.cmenu2.addAction('Live')
+                self.actstop2 = self.cmenu2.addAction('Stop')
+                self.actsave2 = self.cmenu2.addAction('Save')
+            else:
+                self.actsnap2 = self.cmenu2.addAction('抓拍')
+                self.actstart2 = self.cmenu2.addAction('实时拍照')
+                self.actstop2 = self.cmenu2.addAction('停止')
+                self.actsave2 = self.cmenu2.addAction('保存图片')
+
+            # 添加右键菜单image3
+            self.lb_image3.setContextMenuPolicy(3)
+            self.lb_image3.customContextMenuRequested.connect(self.showContextMenu3)
+            self.cmenu3 = QMenu(self)
+            if (self.lan == 'EN'):
+                self.actsnap3 = self.cmenu3.addAction('Shot')
+                self.actstart3 = self.cmenu3.addAction('Live')
+                self.actstop3 = self.cmenu3.addAction('Stop')
+                self.actsave3 = self.cmenu3.addAction('Save')
+            else:
+                self.actsnap3 = self.cmenu3.addAction('抓拍')
+                self.actstart3 = self.cmenu3.addAction('实时拍照')
+                self.actstop3 = self.cmenu3.addAction('停止')
+                self.actsave3 = self.cmenu3.addAction('保存图片')
+
+            # 添加右键菜单image2
+            self.lb_image4.setContextMenuPolicy(3)
+            self.lb_image4.customContextMenuRequested.connect(self.showContextMenu4)
+            self.cmenu4 = QMenu(self)
+            if (self.lan == 'EN'):
+                self.actsnap4 = self.cmenu4.addAction('Shot')
+                self.actstart4 = self.cmenu4.addAction('Live')
+                self.actstop4 = self.cmenu4.addAction('Stop')
+                self.actsave4 = self.cmenu4.addAction('Save')
+            else:
+                self.actsnap4 = self.cmenu4.addAction('抓拍')
+                self.actstart4 = self.cmenu4.addAction('实时拍照')
+                self.actstop4 = self.cmenu4.addAction('停止')
+                self.actsave4 = self.cmenu4.addAction('保存图片')
+            # 连接信号
+            self.connect_singnals()
+
+    def showContextMenu1(self, pos):
+        self.cmenu1.move(QtGui.QCursor.pos())
+        self.cmenu1.show()
+
+    def showContextMenu2(self, pos):
+        self.cmenu2.move(QtGui.QCursor.pos())
+        self.cmenu2.show()
+
+    def showContextMenu3(self, pos):
+        self.cmenu3.move(QtGui.QCursor.pos())
+        self.cmenu3.show()
+
+    def showContextMenu4(self, pos):
+        self.cmenu4.move(QtGui.QCursor.pos())
+        self.cmenu4.show()
+
+    def showContextMenuTest(self, pos):
+        self.cmenutest.move(QtGui.QCursor.pos())
+        self.cmenutest.show()
+
+    def connect_singnals(self):
+        for j in range(load.threadnum):
+            self.info[j].itemChanged.connect(self.info_changed)
+
+    def info_changed(self, item):
+        if(item.row()==5 and item.column()==1):
+            globaldata.sn = item.text()
 
     def init_main_ui(self):
         # 初始化主界面各控件大小
@@ -97,8 +176,17 @@ class MainUI(QMainWindow):
         for i in range(load.threadnum):
             #self.testtree[i].setStyleSheet('background-color: rgb(255, 255, 255);')
             self.testtree[i].header().setDefaultAlignment(Qt.AlignCenter)
-            pass
-        self.tabWidget.tabBar().hide()
+
+            self.testtree[i].setContextMenuPolicy(3)
+            self.testtree[i].customContextMenuRequested.connect(self.showContextMenuTest)
+            self.cmenutest = QMenu(self)
+            if (self.lan == 'EN'):
+                self.actstarttest = self.cmenutest.addAction('Start')
+                self.actstoptest = self.cmenutest.addAction('Stop')
+            else:
+                self.actstarttest = self.cmenutest.addAction('开始测试')
+                self.actstoptest = self.cmenutest.addAction('停止测试')
+        # self.tabWidget.tabBar().hide()
 
     def init_systeminfo(self):
         # 初始化系统信息栏，第一行为测试状态，2-4行为测试信息统计
@@ -108,8 +196,12 @@ class MainUI(QMainWindow):
             # self.info[j].setHorizontalHeaderLabels(['Item', 'Value'])
             self.info[j].horizontalHeader().setStretchLastSection(True)
             self.info[j].verticalHeader().hide()
-            data1 = ['State:', 'Total:', 'Pass:', 'Yield:','Test Time:', 'SN:']
-            data2 = ['Idle', '0', '0', '0', '0','']
+            if(self.lan=='EN'):
+                data1 = ['State:', 'Total:', 'Pass:', 'Yield:','Test Time:', 'Serial Number:']
+                data2 = ['Idle', '0', '0', '0', '0','']
+            else:
+                data1 = ['状态:', '总数:', '通过:', '通过率:', '测试时间:', '序列号:']
+                data2 = ['空闲', '0', '0', '0', '0', '']
             for i in range(6):
                 newItem1 = QTableWidgetItem(data1[i])
                 self.info[j].setItem(i, 0, newItem1)
@@ -167,17 +259,12 @@ class MainUI(QMainWindow):
         self.toolBar.setIconSize(QSize(int(self.height*0.02),int(self.height*0.03)))
 
         self.language.setStyle(QStyleFactory.create("Fusion"))  # Plastique
-        self.lan = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Language')
         self.change_language(self.lan)
 
     def disable_window(self):
         self.actionSN_Window.setVisible(False)
-        self.visionui = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Vision')
         self.autoui = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Automation')
         self.sequi = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Sequence')
-        if (self.visionui != 'enable'):
-            self.actionVision_Window.setVisible(False)
-            self.tabWidget.removeTab(3)
         if (self.autoui != 'enable'):
             self.actionMotion_Window.setVisible(False)
             self.actionAutomation.setVisible(False)
@@ -219,6 +306,7 @@ class MainUI(QMainWindow):
         self.actionMotion_Window.setText('运动控制窗口')
         self.actionVision_Window.setText('视觉窗口')
         self.actionToolBar.setText('工具栏')
+        self.lb_user_title.setText('用户:')
         # 测试序列
         for i in range(load.threadnum):
             self.testtree[i].setHeaderLabels(['测试项', '测试时间', '测试数据', '测试结果', '详细结果'])
@@ -256,6 +344,7 @@ class MainUI(QMainWindow):
         self.actionMotion_Window.setText('Motion Window')
         self.actionVision_Window.setText('Vision Window')
         self.actionToolBar.setText('ToolBar')
+        self.lb_user_title.setText('User:')
         # 测试序列
         for i in range(load.threadnum):
             self.testtree[i].setHeaderLabels(['TestItems', 'TestTime', 'TestData', 'TestResult', 'TestDetails'])

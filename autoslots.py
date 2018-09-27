@@ -27,7 +27,7 @@ except Exception as e:
 def reload_scripts():
     try:
         reload(automationscript)
-        log.loginfo.process_log('reload auto script ok')
+        log.loginfo.process_log('reload automationscript ok')
     except Exception as e:
         log.loginfo.process_log(str(e))
 
@@ -39,10 +39,12 @@ class AutoThread(QDialog,QtCore.QThread):
     # 实现一个单例类,只初始化一次
     _instance = None
     __first_init = True
+
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super().__new__(cls, *args, **kwargs)
         return cls._instance
+
     def __init__(self, parent=None):
         if (self.__class__.__first_init):  # 只初始化一次
             self.__class__.__first_init = False  # 只初始化一次
@@ -62,12 +64,12 @@ class AutoThread(QDialog,QtCore.QThread):
             self.refreshpara.connect(self.refresh_para)
             self.refreshio.connect(self.refresh_io)
             self.refreshaxis.connect(self.refresh_axis_ui)
-            init_iopath = systempath.bundle_dir + '/CSV Files/IO.csv'
+            # init_iopath = systempath.bundle_dir + '/CSV Files/IO.csv'
             self.read_io_config(0, True)
             self.read_axis_config()
             self.read_para_config(0, True)
             self.initialize_motion_ui()
-            self.initialize_motion_state()
+            # self.initialize_motion_state()
             # 连接写参数信号与槽
             self.autoui.cb_axis.currentIndexChanged.connect(self.auto.choose_axis)
             self.autoui.tw_para.itemChanged.connect(self.set_para)
@@ -86,6 +88,7 @@ class AutoThread(QDialog,QtCore.QThread):
     def show_event(self, show):
         self.stop_rt = False
         self.auto.mannual_mode(True)
+        self.initialize_motion_state()
 
     def close_event(self, close):
         self.stop_rt = True
@@ -304,6 +307,7 @@ class AutoThread(QDialog,QtCore.QThread):
                 axis_para = self.auto.get_rt_info()
                 self.refreshaxis.emit(axis_para)
                 self.io_value = self.auto.read_io(self.io_index[0], len(self.io_index))
+
                 self.io_value_en = []
                 # 挑出读取到的IO中使能的点，并赋值到io_value_en
                 for i in range(len(self.io_value)):
@@ -343,10 +347,10 @@ class AutoThread(QDialog,QtCore.QThread):
                         time.sleep(0.1)
                         self.io_value_en[index] = 1
                         ret = self.auto.write_io(self.io_index_en[index], [1])
-                #self.autoui.tw_io.setItem(index, 1, newItem)
+                # self.autoui.tw_io.setItem(index, 1, newItem)
                 # 需添加自定义写IO代码
             else:
-                print('Read IO state fail!')
+                log.loginfo.process_log('Read IO state fail!')
         except Exception as e:
             log.loginfo.process_log('set_io:' + str(e))
 

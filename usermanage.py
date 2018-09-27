@@ -10,22 +10,27 @@ version 1.0.0
 
 from PyQt5.QtWidgets import *
 from PyQt5.uic import loadUi
+from PyQt5 import QtGui
 import systempath
 import base64
 import log
 import inihelper
+
 
 class UserManage(QDialog):
     def __init__(self, parent=None):
         super(UserManage, self).__init__(parent)
         loadUi(systempath.bundle_dir + '/UI/usermanage.ui', self)  # 看到没，瞪大眼睛看
 
+
+        # 设置窗口图标
+        import ctypes
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
+        self.setWindowIcon(QtGui.QIcon(systempath.bundle_dir + '/Resource/user.ico'))
+
         self.pb_savepw.clicked.connect(self.change_password)
         self.pb_deluser.clicked.connect(self.delete_user)
-        self.le_old.setEchoMode(2)
-        self.le_new.setEchoMode(2)
-        self.le_old.setFocus()
-        self.setWindowTitle('User Management')
+        self.init_ui()
         self.lan = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Language')
         self.change_language(self.lan)
 
@@ -61,11 +66,15 @@ class UserManage(QDialog):
         f.close()
         return pw
 
-    def get_users(self):
+    def init_ui(self):
+        self.le_old.setEchoMode(2)
+        self.le_new.setEchoMode(2)
+        self.le_old.setFocus()
         self.tw_user.horizontalHeader().setStretchLastSection(True)
         self.tw_user.setColumnCount(3)
         self.tw_user.setRowCount(50)
-        self.tw_user.setHorizontalHeaderLabels(['User', 'Authority', 'Latest login'])
+
+    def get_users(self):
         f = open(systempath.bundle_dir + '/Config/User.dat', 'r+')
         data = f.readlines()
         f.close()
@@ -109,6 +118,8 @@ class UserManage(QDialog):
         self.lb_new.setText('New Password:')
         self.pb_savepw.setText('Save Password')
         self.pb_deluser.setText('Delete')
+        self.setWindowTitle('User Management')
+        self.tw_user.setHorizontalHeaderLabels(['User', 'Authority', 'Latest login'])
 
     def Chinese_ui(self):
         self.lb_usertitle.setText('用户管理')
@@ -116,6 +127,8 @@ class UserManage(QDialog):
         self.lb_new.setText('新密码:')
         self.pb_savepw.setText('保存密码')
         self.pb_deluser.setText('删除')
+        self.setWindowTitle('用户管理')
+        self.tw_user.setHorizontalHeaderLabels(['用户', '权限', '最近登录时间'])
 
     def change_language(self, lan):
         if (lan == 'EN'):

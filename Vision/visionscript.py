@@ -8,17 +8,14 @@ Update date：2017.7.20
 version 1.0.0
 """
 
-import clr
+
 import time
-import numpy as np
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
 import threading
 import systempath
-import visionsetup
 import sys
 import mainsetup
-clr.FindAssembly('BaumerSDKV2.dll')  # 加载c#dll文件
+import clr
+clr.FindAssembly(systempath.bundle_dir +  '/Vision/BaumerSDKV2.dll')  # 加载c#dll文件
 from BaumerSDKV2 import *
 
 
@@ -33,32 +30,29 @@ class Vision():
 
     def __init__(self, parent=None):
         if (self.__class__.__first_init):  # 只初始化一次
-            self.visionui = visionsetup.VisionUI()
-            self.visionui.pb_live.setText('Live')
             self.baumer = BaumerSDKV2()
+            # ret = self.baumer.init_system()
+            # self.baumer.open_camera('0680113115')
             self.mainui = mainsetup.MainUI()
-            self.mainui.actsnap.triggered.connect(self.read_image)
+            self.win = self.init_image_window(self.mainui.lb_image1)
+            self.mainui.actsnap1.triggered.connect(self.read_image)
             self.__class__.__first_init = False  # 只初始化一次
 
     def read_image(self):
         try:
-            win = self.init_image_window(self.mainui.lb_image)
-            self.baumer.read_image('C:\\Project\\Image\\123.bmp')
-            self.baumer.disp_image(win)
+            # self.baumer.set_extime('0680113115', 160000)
+            self.baumer.read_image('C:\\Project\\Image\\3-1.jpg')
+            # self.baumer.snap('0680113115')
+            self.baumer.disp_image(self.win, self.mainui.lb_image1.width(), self.mainui.lb_image1.height())
         except Exception as e:
             print(e)
 
     def init_image_window(self, image_win):
-        ret = self.baumer.init_window(int(image_win.winId()), 0, 0, image_win.width(),
-                                 image_win.height())
+        ret = self.baumer.init_window(int(image_win.winId()))
         return ret
 
     def connect_camera(self):
-        ret = self.baumer.Initialize()
-        if(ret==True):
-            print('connect ok')
-        self.cam = list(self.baumer.init_camera())
-        print(self.cam)
+        ret = True
         return ret
 
     def get_extime(self):
@@ -78,15 +72,7 @@ class Vision():
             print(e)
 
     def live(self):
-        if(self.visionui.pb_live.text() == 'Live'):
-            self.stop = False
-            self.visionui.pb_live.setText('Stop')
-            live = threading.Thread(target=self.live_image)
-            live.setDaemon(True)
-            live.start()
-        else:
-            self.visionui.pb_live.setText('Live')
-            self.stop = True
+        pass
 
     def live_image(self):
         while (True):

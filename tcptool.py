@@ -9,6 +9,7 @@ version 1.0.0
 """
 
 from PyQt5.QtWidgets import QDialog, QDesktopWidget
+from PyQt5 import QtGui
 import socket
 import threading
 import time
@@ -24,17 +25,20 @@ class TcpTool(QDialog):
         super(TcpTool, self).__init__(parent)
         loadUi(systempath.bundle_dir + '/UI/tcptool.ui', self)  # 看到没，瞪大眼睛看
 
+        # 设置窗口图标
+        import ctypes
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
+        self.setWindowIcon(QtGui.QIcon(systempath.bundle_dir + '/Resource/tcp.ico'))
+
         self.screen = QDesktopWidget().screenGeometry()
         self.width = self.screen.width()
         self.height = self.screen.height()
-        self.setWindowTitle('TCP Debug')
         self.resize(self.width * 0.5, self.height * 0.5)
         self.lb_tcptitle.setMaximumHeight(self.height * 0.05)
-
         self.pb_tcpconnect.clicked.connect(self.tcp_connect)
         self.setWindowTitle('Tcp Debug')
         self.pb_send.clicked.connect(self.tcp_send)
-        self.le_ip.setText('192.168.1.100:5000')
+        self.le_ip.setText('127.0.0.1:5000')
         self.ip = ''
         self.port = 0
         self.pb_send.setEnabled(False)
@@ -43,7 +47,7 @@ class TcpTool(QDialog):
 
     def tcp_connect(self):
         self.skt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        if(self.pb_tcpconnect.text() == 'Connect'):
+        if(self.pb_tcpconnect.text() == 'Connect' or self.pb_tcpconnect.text() == '连接'):
             try:
                 s_list = self.le_ip.text().split(':')
                 self.ip = s_list[0]
@@ -51,7 +55,10 @@ class TcpTool(QDialog):
                 con_ok = self.skt.connect((self.ip, self.port))
                 if(con_ok == None):
                     log.loginfo.process_log('tcp connect ok')
-                    self.pb_tcpconnect.setText('Close')
+                    if(self.lan == 'EN'):
+                        self.pb_tcpconnect.setText('Close')
+                    else:
+                        self.pb_tcpconnect.setText('关闭')
                     self.recving = True
                     self.recv_thread = threading.Thread(target=self.tcp_recv)
                     self.recv_thread.setDaemon(True)
@@ -63,7 +70,10 @@ class TcpTool(QDialog):
         else:
             self.recving = False
             self.skt.close()
-            self.pb_tcpconnect.setText('Connect')
+            if (self.lan == 'EN'):
+                self.pb_tcpconnect.setText('Connect')
+            else:
+                self.pb_tcpconnect.setText('连接')
             self.pb_send.setEnabled(False)
 
     def tcp_send(self):
@@ -85,25 +95,27 @@ class TcpTool(QDialog):
                 log.loginfo.process_log(str(e))
             time.sleep(0.01)
 
-    def closeEvent(self, event):
-        try:
-            self.recving = False
-            self.pb_tcpconnect.setText('Connect')
-            self.pb_send.setEnabled(False)
-            self.skt.close()
-            log.loginfo.process_log('tcp close ok')
-        except Exception as e:
-            log.loginfo.process_log(str(e))
+    # def closeEvent(self, event):
+    #     try:
+    #         self.recving = False
+    #         self.pb_tcpconnect.setText('Connect')
+    #         self.pb_send.setEnabled(False)
+    #         self.skt.close()
+    #         log.loginfo.process_log('tcp close ok')
+    #     except Exception as e:
+    #         log.loginfo.process_log(str(e))
 
     def English_ui(self):
         self.lb_tcptitle.setText('TCP Debug Tool')
         self.pb_tcpconnect.setText('Connect')
         self.pb_send.setText('Send')
+        self.setWindowTitle('TCP Debug')
 
     def Chinese_ui(self):
         self.lb_tcptitle.setText('TCP调试工具')
         self.pb_tcpconnect.setText('连接')
         self.pb_send.setText('发送')
+        self.setWindowTitle('TCP调试')
 
     def change_language(self, lan):
         if(lan == 'EN'):

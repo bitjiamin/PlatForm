@@ -18,6 +18,7 @@ import os
 import threading
 import autosetup
 import log
+import fx5u
 
 
 l = threading.Lock()
@@ -35,6 +36,8 @@ class AutoMation():
     def __init__(self, parent=None):
         if (self.__class__.__first_init):  # 只初始化一次
             self.currentaxis = 0
+            self.plc = fx5u.FX5U()
+            self.plc.create_connect()
             self.__class__.__first_init = False  # 只初始化一次
 
     def get_rt_info(self):    # 框架固有函数，可自定义，勿删除
@@ -43,9 +46,11 @@ class AutoMation():
         return rt_info
 
     def create_connect(self):     #输入参数为本机IP，字符串
-        return True
+        ret = self.plc.create_connect()
+        return ret
 
     def close_connect(self):
+        self.plc.close_connect()
         return True
 
     def choose_axis(self, axis_index):   # 框架固有函数，可自定义，勿删除
@@ -98,19 +103,27 @@ class AutoMation():
         print('stop')
         return True
 
-    def read_io(self, index, length):  # index格式两位小数的字符串，length为整数   # 框架固有函数，可自定义，勿删除
-        time.sleep(0.1)
-        data = [-1]*length
+    def read_io(self, index, length):  # index格式两位小数的字符串，length为整数，返回为数字list   # 框架固有函数，可自定义，勿删除
+        try:
+            data = self.plc.read_m(int(index), length)
+        except Exception as e:
+            data = [-1] * length
         return data
 
-    def write_io(self,index,value):    # index格式两位小数的浮点数，index为字符串，value为list    # 框架固有函数，可自定义，勿删除
-        return True
+    def write_io(self,index,value):    # index格式两位小数的浮点数，index为字符串，value为int类型list    # 框架固有函数，可自定义，勿删除
+        try:
+            ret = self.plc.write_m(int(index), value)
+        except Exception as e:
+            ret = False
+        return ret
 
     def read_para(self, index, length):  # index为D寄存器开始位置, length为数据个数    # 框架固有函数，可自定义，勿删除
-        time.sleep(0.1)
-        length = length*2   # 所有数据均为双子，所以长度乘以2
-        data = [0] * int(length/2)
+        try:
+            data = self.plc.read_d(int(index), length)
+        except Exception as e:
+            data = [-1]*length
         return data
 
     def write_para(self, index, value):  # index为D寄存器开始位置, value为写入的数值，每个数值占用两个D寄存器，两位小数   # 框架固有函数，可自定义，勿删除
-        return True
+        ret = self.plc.write_d(int(index), value)
+        return ret

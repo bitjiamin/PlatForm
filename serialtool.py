@@ -9,6 +9,7 @@ version 1.0.0
 """
 
 from PyQt5.QtWidgets import QDialog
+from PyQt5 import QtGui
 import serial
 import serial.tools.list_ports
 import systempath
@@ -22,10 +23,15 @@ class SerialTool(QDialog):
     def __init__(self, parent = None):
         super(SerialTool, self).__init__(parent)
         loadUi(systempath.bundle_dir + '/UI/serialtool.ui', self)  # 看到没，瞪大眼睛看
+
+        # 设置窗口图标
+        import ctypes
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
+        self.setWindowIcon(QtGui.QIcon(systempath.bundle_dir + '/Resource/serial.ico'))
+
         self.screen = QDesktopWidget().screenGeometry()
         self.width = self.screen.width()
         self.height = self.screen.height()
-        self.setWindowTitle('Serial Debug')
         self.resize(self.width * 0.5, self.height * 0.5)
         self.lb_serialtitle.setMaximumHeight(self.height * 0.05)
 
@@ -46,7 +52,7 @@ class SerialTool(QDialog):
 
 
     def serial_connect(self):
-        if (self.pb_serialcon.text() == 'Connect'):
+        if (self.pb_serialcon.text() == 'Connect' or self.pb_serialcon.text() == '连接'):
             try:
                 self.com.port = self.cb_serialname.currentText()
                 self.com.baudrate = int(self.cb_baund.currentText())
@@ -68,14 +74,20 @@ class SerialTool(QDialog):
                 self.com.open()
                 if(self.com.is_open):
                     self.pb_serialsend.setEnabled(True)
-                    self.pb_serialcon.setText('Close')
+                    if(self.lan=='EN'):
+                        self.pb_serialcon.setText('Close')
+                    else:
+                        self.pb_serialcon.setText('关闭')
             except Exception as e:
                 log.loginfo.process_log(e)
                 self.pb_serialsend.setEnabled(False)
         else:
             self.recving = False
             self.com.close()
-            self.pb_serialcon.setText('Connect')
+            if(self.lan=='EN'):
+                self.pb_serialcon.setText('Connect')
+            else:
+                self.pb_serialcon.setText('连接')
         self.recving = True
         self.recv_thread = threading.Thread(target=self.serial_recv)
         self.recv_thread.setDaemon(True)
@@ -99,24 +111,26 @@ class SerialTool(QDialog):
             except Exception as e:
                 log.loginfo.process_log(str(e))
 
-    def closeEvent(self, event):
-        try:
-            self.recving = False
-            self.pb_serialcon.setText('Connect')
-            self.pb_serialsend.setEnabled(False)
-            self.com.close()
-        except Exception as e:
-            log.loginfo.process_log(str(e))
+    # def closeEvent(self, event):
+    #     try:
+    #         self.recving = False
+    #         self.pb_serialcon.setText('Connect')
+    #         self.pb_serialsend.setEnabled(False)
+    #         self.com.close()
+    #     except Exception as e:
+    #         log.loginfo.process_log(str(e))
 
     def English_ui(self):
         self.lb_serialtitle.setText('Serial Debug Tool')
         self.pb_serialcon.setText('Connect')
         self.pb_serialsend.setText('Send')
+        self.setWindowTitle('Serial Debug')
 
     def Chinese_ui(self):
         self.lb_serialtitle.setText('串口调试工具')
         self.pb_serialcon.setText('连接')
         self.pb_serialsend.setText('发送')
+        self.setWindowTitle('串口调试')
 
     def change_language(self, lan):
         if(lan == 'EN'):

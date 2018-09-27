@@ -29,7 +29,7 @@ class EditSlots():
 
     # 保存测试序列信息
     def save_sequence_1(self):
-        filepath = systempath.bundle_dir + '/CSV Files/Seq' + str(self.cb_seq.currentIndex()+1) + '.csv'
+        filepath = systempath.bundle_dir + '/CSV Files/Sequence' + str(self.cb_seq.currentIndex()+1) + '.csv'
         f = open(filepath, 'w',encoding='utf8',newline='')
         writer = csv.writer(f)
         writer.writerow(['TestItem', 'Function', 'Mode', 'Low Limit', 'Up Limit', 'Next Step', 'Level'])
@@ -62,7 +62,7 @@ class EditSlots():
         #self.load_sequence()
 
     def save_sequence(self):
-        filepath = systempath.bundle_dir + '/CSV Files/Seq' + str(self.editui.cb_seq.currentIndex()+1) + '.csv'
+        filepath = systempath.bundle_dir + '/CSV Files/Sequence' + str(self.editui.cb_seq.currentIndex()+1) + '.csv'
         f = open(filepath, 'w',encoding='utf8',newline='')
         writer = csv.writer(f)
         writer.writerow(['TestItem', 'Function', 'Mode', 'Low Limit', 'Up Limit', 'Next Step', 'Level'])
