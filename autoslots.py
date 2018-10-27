@@ -279,6 +279,7 @@ class AutoThread(QDialog,QtCore.QThread):
     def refresh_para(self, data):
         try:
             newItem = QTableWidgetItem(str(data[0]))
+            newItem.setTextAlignment(QtCore.Qt.AlignHCenter)
             self.autoui.tw_para.setItem(data[1], 1, newItem)
             newItem.setFlags(QtCore.Qt.ItemIsEnabled)
         except Exception as e:
@@ -382,17 +383,23 @@ class AutoThread(QDialog,QtCore.QThread):
                     #self.autoui.tw_io.cellWidget(i, 0).setChecked(True)
                     newItem = QTableWidgetItem(self.io_on_en[i])
                     newItem.setFlags(QtCore.Qt.ItemIsEnabled)
+                    newItem.setBackground(QColor(0,255,0))
+                    newItem.setTextAlignment(QtCore.Qt.AlignHCenter)
                     # self.autoui.tw_io.setItem(i, 1, newItem)
                     self.refreshio.emit([i, newItem])
                 elif(io == 0):
                     #self.autoui.tw_io.cellWidget(i, 0).setChecked(False)
                     newItem = QTableWidgetItem(self.io_off_en[i])
                     newItem.setFlags(QtCore.Qt.ItemIsEnabled)
+                    newItem.setBackground(QColor(213, 213, 213))
+                    newItem.setTextAlignment(QtCore.Qt.AlignHCenter)
                     # self.autoui.tw_io.setItem(i, 1, newItem)
                     self.refreshio.emit([i, newItem])
                 else:
                     newItem = QTableWidgetItem(str(io))
                     newItem.setFlags(QtCore.Qt.ItemIsEnabled)
+                    newItem.setBackground(QColor(213, 213, 213))
+                    newItem.setTextAlignment(QtCore.Qt.AlignHCenter)
                     # self.autoui.tw_io.setItem(i, 1, newItem)
                     self.refreshio.emit([i, newItem])
                 i = i + 1

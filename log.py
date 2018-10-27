@@ -55,11 +55,3 @@ class Log(QtCore.QObject):
         self.logger.debug(msg)
         st = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         self.refreshlog.emit(st + ' - ' + msg)
-
-
-
-
-
-
-
-

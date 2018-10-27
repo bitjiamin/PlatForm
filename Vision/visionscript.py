@@ -34,16 +34,25 @@ class Vision():
             # ret = self.baumer.init_system()
             # self.baumer.open_camera('0680113115')
             self.mainui = mainsetup.MainUI()
+            # 初始化图像窗口，并在界面加载完成后调整halcon窗口为label大小
             self.win = self.init_image_window(self.mainui.lb_image1)
+            self.win_thread = threading.Thread(target=self.resize_win)
+            self.win_thread.setDaemon(True)
+            self.win_thread.start()
+            # 连接右键事件
             self.mainui.actsnap1.triggered.connect(self.read_image)
             self.__class__.__first_init = False  # 只初始化一次
 
+    def resize_win(self):
+        # 界面加载完成后重新调整halcon图像窗体大小
+        time.sleep(2)
+        self.baumer.set_winsize(self.win, self.mainui.lb_image1.width(), self.mainui.lb_image1.height())
+
     def read_image(self):
         try:
-            # self.baumer.set_extime('0680113115', 160000)
             self.baumer.read_image('C:\\Project\\Image\\3-1.jpg')
-            # self.baumer.snap('0680113115')
-            self.baumer.disp_image(self.win, self.mainui.lb_image1.width(), self.mainui.lb_image1.height())
+            self.baumer.disp_imageH(self.win)
+            # self.baumer.get_roi(self.win)
         except Exception as e:
             print(e)
 
@@ -65,13 +74,12 @@ class Vision():
 
     def capture(self):
         try:
-            self.baumer.set_camera('0680113115')
-            ret = self.baumer.snap()
-            self.baumer.disp_image()
+            print('capture1')
         except Exception as e:
             print(e)
 
     def live(self):
+        print('live1')
         pass
 
     def live_image(self):

@@ -21,7 +21,7 @@ class FX5U():
 
     def create_connect(self):
         try:
-            con_ok = self.skt.connect(('192.168.250.20', 4000))
+            con_ok = self.skt.connect(('192.168.250.20', 6000))
             if (con_ok == None):
                 return True
         except Exception as e:

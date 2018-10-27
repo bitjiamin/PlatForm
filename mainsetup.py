@@ -25,6 +25,8 @@ class MainUI(QMainWindow):
             self.__class__.__first_init = False  # 只初始化一次
             super(MainUI, self).__init__(parent)
             loadUi(systempath.bundle_dir + '/UI/mainwindow.ui', self)  # 看到没，瞪大眼睛看
+
+            self.setDockNestingEnabled(True)
             log.loginfo.process_log('Initialize main ui')
             # 获取屏幕分辨率
             self.screen = QDesktopWidget().screenGeometry()
@@ -75,7 +77,6 @@ class MainUI(QMainWindow):
             self.init_main_ui()
             self.init_systeminfo()
             self.init_toolbar_ui()
-            self.disable_window()
 
             #添加右键菜单image1
             self.lb_image1.setContextMenuPolicy(3)
@@ -122,7 +123,7 @@ class MainUI(QMainWindow):
                 self.actstop3 = self.cmenu3.addAction('停止')
                 self.actsave3 = self.cmenu3.addAction('保存图片')
 
-            # 添加右键菜单image2
+            # 添加右键菜单image4
             self.lb_image4.setContextMenuPolicy(3)
             self.lb_image4.customContextMenuRequested.connect(self.showContextMenu4)
             self.cmenu4 = QMenu(self)
@@ -176,7 +177,6 @@ class MainUI(QMainWindow):
         for i in range(load.threadnum):
             #self.testtree[i].setStyleSheet('background-color: rgb(255, 255, 255);')
             self.testtree[i].header().setDefaultAlignment(Qt.AlignCenter)
-
             self.testtree[i].setContextMenuPolicy(3)
             self.testtree[i].customContextMenuRequested.connect(self.showContextMenuTest)
             self.cmenutest = QMenu(self)
@@ -186,7 +186,12 @@ class MainUI(QMainWindow):
             else:
                 self.actstarttest = self.cmenutest.addAction('开始测试')
                 self.actstoptest = self.cmenutest.addAction('停止测试')
-        # self.tabWidget.tabBar().hide()
+
+        self.tabWidget:QTabWidget
+        self.tabWidget.tabBar().hide()
+        for i in range(10):
+            if(self.tabWidget.tabText(i)=='control_bak'):
+                self.tabWidget.removeTab(i)
 
     def init_systeminfo(self):
         # 初始化系统信息栏，第一行为测试状态，2-4行为测试信息统计
@@ -268,11 +273,9 @@ class MainUI(QMainWindow):
         if (self.autoui != 'enable'):
             self.actionMotion_Window.setVisible(False)
             self.actionAutomation.setVisible(False)
-            self.tabWidget.removeTab(2)
         if (self.sequi != 'enable'):
             self.actionEdit.setVisible(False)
             self.actionEdit_Window.setVisible(False)
-            self.tabWidget.removeTab(1)
 
     def Chinese_ui(self):
         # 工具栏

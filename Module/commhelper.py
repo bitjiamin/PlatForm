@@ -27,7 +27,7 @@ class TcpClient():
             else:
                 return False
         except Exception as e:
-            log.loginfo.process_log('tcp_connect'+str(e))
+            log.loginfo.process_log('tcp_connect '+str(e))
             return False
 
     def tcp_send(self, sendmsg):
@@ -59,10 +59,11 @@ class TcpServer():
     def __init__(self):
         self.skt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socks = []
+        self.clientname = []
         self.recv_data = []
 
-    def start_server(self):
-        server_address = ('127.0.0.1', 5001)
+    def start_server(self, port):
+        server_address = ('127.0.0.1', port)
         # bind port
         print('starting listen on ip %s, port %s' % server_address)
         self.skt.bind(server_address)
@@ -96,13 +97,16 @@ class TcpServer():
             for index, s in enumerate(self.socks):
                 try:
                     data = s.recv(1024)  # 到这里程序继续向下执行
-                    if(data.decode()!=''):
+                    s_data = data.decode()
+                    if(s_data.split(',')[1]=='SYN'):
+                        self.clientname.append(s_data.split(',')[0])
+                    if(s_data!=''):
                         self.recv_data[index] = data.decode()
-                        sendmsg = 'server' + str(index) + 'ok'
-                        s.send(sendmsg.encode())
                 except Exception as e:
                     pass
 
     def server_send(self, clientid, sendmsg):
         # clientid指定朝哪个客户端发送
+        for addr in self.addrs:
+            print(addr)
         self.socks[clientid].send(sendmsg.encode())

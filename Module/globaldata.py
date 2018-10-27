@@ -2,10 +2,12 @@
 from PyQt5 import QtCore
 
 
+# 全局变量
 sn = ''
 username = ''
-tester1 = []
-tester2 = []
+
+
+# 全局信号
 class GlobalSingnal(QtCore.QThread):
     singnal1 = QtCore.pyqtSignal(list)
     singnal2 = QtCore.pyqtSignal(list)
@@ -15,6 +17,7 @@ class GlobalSingnal(QtCore.QThread):
         super(GlobalSingnal, self).__init__(parent)
         self.runsingnal = [self.singnal1, self.singnal2, self.singnal3, self.singnal4]
 
+# 初始化全局信号
 global singnal
 def init_singnal():
     global singnal

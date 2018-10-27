@@ -57,9 +57,14 @@ class TestThread(QtCore.QThread):
         self.loop = False
         self.mode = inihelper.read_ini(systempath.bundle_dir + '/Config/Config.ini', 'Config', 'Mode')
         self.ts = testscript[self.threadid].TestFunc()
+        self.total_time = 0
+        self.total_result = 'Pass'
+        self.total_data = []
+        self.time1 = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        self.time1_int = time.time()
+        self.func = 'prerun'
 
     def get_step(self, ls):
-        print(ls)
         ret = ''
         if (ls[1][0:5] == 'Start'):
             ret = ls[1][5:]
@@ -83,11 +88,8 @@ class TestThread(QtCore.QThread):
         else:
             self.seq_len = 1
 
+        self.seq_end = False
         if(self.func == 'prerun'):
-            self.seq_end = False
-            self.total_time = 0
-            self.total_result = 'Pass'
-            self.total_data = []
             self.time1 = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             self.time1_int = time.time()
 
@@ -105,7 +107,11 @@ class TestThread(QtCore.QThread):
                     st = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(st_int))
                     if self.load.seq_col3[i]!='skip':
                         k = getattr(self.ts, self.load.seq_col2[i])
-                        self.ret = k()
+                        # 通过seq_id区分子序列，从而获取多个子序列的测试时间
+                        if(self.load.seq_col2[i]=='prerun' or self.load.seq_col2[i]=='postrun'):
+                            self.ret = k()
+                        else:
+                            self.ret = k()
                         log.loginfo.process_log('Thread' + str(self.threadid+1) + ':'+'Test item: ' + self.load.seq_col2[i])
                         # 每个测试项测试结果个数
                         l_result = int(len(self.ret))-1
@@ -175,14 +181,21 @@ class TestThread(QtCore.QThread):
         if(self.func == 'postrun'):
             time2 = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             self.time2_int = time.time()
+            #self.total_time = round(self.time2_int - self.time1_int, 2)
             self.total_time = round(self.time2_int - self.time1_int, 2)
-            data_head = [globaldata.sn, self.total_result, 'no error', self.time1, time2, str(self.total_time)]
-            data_head.extend(self.total_data)
-            self.load.write_csv(data_head, self.threadid)
-            log.loginfo.process_log('Thread' + str(self.threadid+1) + ':'+'total time： ' + str("%.2f" %self.total_time))
+
+            if (self.mode == 'Seq'):
+                data_head = [globaldata.sn, self.total_result, 'no error', self.time1, time2, str(self.total_time)]
+                data_head.extend(self.total_data)
+                self.total_data = []
+                self.load.write_csv(data_head, self.threadid)
+            log.loginfo.process_log('Thread' + str(self.threadid+1) + ':'+'total time：' + str("%.2f" %self.total_time))
             self.seq_end = True
             self.finishSignal.emit([self.total_time, self.total_result, self.threadid])
 
+            # 复位结果，开始时间
+            self.time1_int = self.time2_int
+            self.total_result = 'Pass'
         self.step_end = True
 
     # 重写 run() 函数，在该线程中执行测试函数

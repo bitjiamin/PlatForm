@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1779</width>
-    <height>1197</height>
+    <width>1691</width>
+    <height>1265</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -134,7 +134,7 @@
        <attribute name="title">
         <string>main</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout" rowstretch="1,0,1,0" columnstretch="3,1">
+       <layout class="QGridLayout" name="gridLayout" rowstretch="1,0,1,0" columnstretch="5,3">
         <property name="leftMargin">
          <number>0</number>
         </property>
@@ -243,9 +243,9 @@ text-align: center;
       </widget>
       <widget class="QWidget" name="seqbak">
        <attribute name="title">
-        <string>seq_bak</string>
+        <string>control_bak</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_4">
+       <layout class="QGridLayout" name="gridLayout_4" rowstretch="1,1,0">
         <property name="leftMargin">
          <number>0</number>
         </property>
@@ -258,7 +258,13 @@ text-align: center;
         <property name="bottomMargin">
          <number>0</number>
         </property>
-        <item row="0" column="0">
+        <property name="horizontalSpacing">
+         <number>11</number>
+        </property>
+        <property name="verticalSpacing">
+         <number>0</number>
+        </property>
+        <item row="1" column="0">
          <widget class="QTreeWidget" name="testlist2">
           <property name="styleSheet">
            <string notr="true"/>
@@ -270,7 +276,7 @@ text-align: center;
           </column>
          </widget>
         </item>
-        <item row="0" column="1" rowspan="2">
+        <item row="1" column="1" rowspan="2">
          <widget class="QTableWidget" name="systeminfo2">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -297,7 +303,7 @@ text-align: center;
           </property>
          </widget>
         </item>
-        <item row="0" column="2">
+        <item row="1" column="2">
          <widget class="QTreeWidget" name="testlist3">
           <property name="styleSheet">
            <string notr="true"/>
@@ -309,7 +315,7 @@ text-align: center;
           </column>
          </widget>
         </item>
-        <item row="0" column="3" rowspan="2">
+        <item row="1" column="3" rowspan="2">
          <widget class="QTableWidget" name="systeminfo3">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -336,7 +342,7 @@ text-align: center;
           </property>
          </widget>
         </item>
-        <item row="0" column="4">
+        <item row="1" column="4">
          <widget class="QTreeWidget" name="testlist4">
           <property name="styleSheet">
            <string notr="true"/>
@@ -348,7 +354,7 @@ text-align: center;
           </column>
          </widget>
         </item>
-        <item row="0" column="5" rowspan="2">
+        <item row="1" column="5" rowspan="2">
          <widget class="QTableWidget" name="systeminfo4">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -375,7 +381,7 @@ text-align: center;
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="2" column="0">
          <widget class="QProgressBar" name="pbar2">
           <property name="font">
            <font>
@@ -390,7 +396,7 @@ text-align: center;
           </property>
          </widget>
         </item>
-        <item row="1" column="2">
+        <item row="2" column="2">
          <widget class="QProgressBar" name="pbar3">
           <property name="font">
            <font>
@@ -405,7 +411,7 @@ text-align: center;
           </property>
          </widget>
         </item>
-        <item row="1" column="4">
+        <item row="2" column="4">
          <widget class="QProgressBar" name="pbar4">
           <property name="font">
            <font>
@@ -420,15 +426,8 @@ text-align: center;
           </property>
          </widget>
         </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="imagebak">
-       <attribute name="title">
-        <string>image_bak</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_5">
-        <item row="1" column="1">
-         <widget class="QLabel" name="lb_image4">
+        <item row="0" column="0" colspan="2">
+         <widget class="QLabel" name="lb_image2">
           <property name="styleSheet">
            <string notr="true">background-color: rgb(0, 0, 0);</string>
           </property>
@@ -437,7 +436,7 @@ text-align: center;
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="0" column="2" colspan="2">
          <widget class="QLabel" name="lb_image3">
           <property name="styleSheet">
            <string notr="true">background-color: rgb(0, 0, 0);</string>
@@ -447,8 +446,8 @@ text-align: center;
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="QLabel" name="lb_image2">
+        <item row="0" column="4" colspan="2">
+         <widget class="QLabel" name="lb_image4">
           <property name="styleSheet">
            <string notr="true">background-color: rgb(0, 0, 0);</string>
           </property>
@@ -528,7 +527,7 @@ background-image: url(:/JPG/Res/IA.png);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1779</width>
+     <width>1691</width>
      <height>37</height>
     </rect>
    </property>

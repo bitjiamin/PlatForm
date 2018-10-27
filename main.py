@@ -50,6 +50,7 @@ class TestSeq(QMainWindow):
         log.loginfo.refreshlog.connect(self.refresh_log)
         # 初始化用户名
         self.mainui.lb_main_user.setText(UserManager.username)
+
         self.refresh_user([UserManager.username])
         log.loginfo.process_log(UserManager.username + ' login')
         testthread.init_thread()
@@ -82,6 +83,9 @@ class TestSeq(QMainWindow):
         self.mainui.actionOpen_Log.triggered.connect(self.open_log_thread)
         self.mainui.actionClose_System.triggered.connect(QCoreApplication.instance().quit)
         self.mainui.actionSN_Window.triggered.connect(self.sn_window)
+        # 默认隐藏toolbar
+        self.mainui.actionToolBar.setChecked(False)
+        self.view_toolbar()
         # 工具栏信号连接
         self.mainui.actionStart.triggered.connect(self.test_start)
         self.mainui.actionStop.triggered.connect(self.test_break)
@@ -414,6 +418,8 @@ class TestSeq(QMainWindow):
     def refresh_user(self, ls):
         self.mainui.lb_main_user.setText(ls[0])
         self.authority()
+        # 切换权限会将所有控件显示出来，需要再根据配置文件屏蔽某些控件
+        self.mainui.disable_window()
 
     # 打开zmq调试工具
     def zmq_debug_tool(self):
@@ -518,7 +524,7 @@ class TestSeq(QMainWindow):
             if (ls[1] == 'Continue'):
                 self.continue_tool()
         except Exception as e:
-            print(e)
+            log.loginfo.process_log('main: remote_test:' +str(e))
 
     def open_sequence_thread(self):
         thread = threading.Thread(target=self.open_sequence)
